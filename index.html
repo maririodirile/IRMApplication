@@ -203,9 +203,6 @@ Qn('O9','Total number of employees','n'),
 Qn('O10','Total number of female employees','n'),
 Qn('O11','Total number of youth employees','n'),
 Qn('O12','Total number of Black employees','n'),
-Qn('O13','Number of semi-skilled carpenters','m',N05),
-Qn('O14','Number of qualified electricians','m',N05),
-Qn('O15','Number of qualified plumbers','m',N05)]}]},
 {t:'Tax, B-BBEE and support',intro:'Tax and B-BBEE status, learner hosting, and any support or finance you have received before.',g:[
 {h:'Tax',gate:'T0',q:[
 Qn('T1','Business tax registration status','m',['Registered','Unregistered']),
@@ -308,7 +305,7 @@ function nx(){const m=need(ST.step);if(m.length){TRY=true;render();setTimeout(()
 function pick(m,k,v){ST[m][k]=v;sv();render()}
 function undoNo(){Object.keys(ST.e).forEach(k=>{if(ST.e[k]==='0')delete ST.e[k]});sv();render()}
 function render(){const c=cnt(),s=ST.step;$('#pb').style.width=(s/LAST*100)+'%';
-if(Object.values(ST.e).includes('0')){$('#pb').style.width='0';$('#app').innerHTML=`<div class="card"><h2>This programme is not the right fit right now</h2><p>Thank you for your interest. This programme is open to enterprises that meet all seven minimum requirements in the quick check, and your answers show that one or more are not yet met. Your answers have not been sent to NBI.</p><p>Please create or complete your user profile on the IRM Hub MSME portal instead.</p><p><a class="btn" style="display:inline-block;text-decoration:none" href="https://portal.irmhub.org.za" target="_blank" rel="noopener">Go to the IRM Hub portal</a></p><p class="hint"><a href="#" onclick="undoNo();return false">I tapped No by mistake: go back and change my answers</a></p></div>`;return}
+if(Object.values(ST.e).includes('0')){$('#pb').style.width='0';$('#app').innerHTML=`<div class="card"><h2>This programme is not the right fit right now</h2><p>Thank you for your interest. This programme is open to enterprises that meet all seven minimum requirements in the quick check, and your answers show that one or more are not yet met. Your answers have not been sent to NBI.</p><p>Please create or complete your user profile on the IRM Hub MSME portal instead.</p><p><a class="btn" style="display:inline-block;text-decoration:none" href="https://portal.irmhub.org.za" target="_blank" rel="noopener">Go to the IRM Hub MSME portal</a></p><p class="hint"><a href="#" onclick="undoNo();return false">I tapped No by mistake: go back and change my answers</a></p></div>`;return}
 let b='';
 if(s===0)b=`<div class="card"><h2> Submit your Application</h2><p>The National Business Initiative and Majuba TVET College, invites the following MSMEs:</p>
 
