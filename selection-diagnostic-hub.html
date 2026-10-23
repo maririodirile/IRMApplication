@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Newcastle IRM – Selection & Diagnostic Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--ink:#14213d;--mut:#5b6678;--line:#ddd8c9;--teal:#0f8b8d;--gold:#c8962c;--bad:#b3392f;--ok:#2a7f4f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1626;--card:#16233a;--ink:#e8ebf2;--mut:#9aa6bb;--line:#2a3a56;--teal:#3cc0c2;--gold:#e0b04e;--bad:#ef7b70;--ok:#5cc58a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1626;--card:#16233a;--ink:#e8ebf2;--mut:#9aa6bb;--line:#2a3a56;--teal:#3cc0c2;--gold:#e0b04e;--bad:#ef7b70;--ok:#5cc58a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'IBM Plex Sans',system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:.2em 0}
+header{background:#14213d;color:#fff;padding:14px 16px 0}
+header h1{font-size:20px;color:#fff}header small{color:#c8962c}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:10px}
+nav button{background:none;border:0;color:#b8c2d6;padding:10px 14px;font:600 14px 'IBM Plex Sans',sans-serif;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:#fff;border-color:#c8962c}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.k{font:600 28px Fraunces,serif}.l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--teal)}
+.row{display:flex;align-items:center;gap:10px;margin:6px 0}.row span:first-child{width:130px;font-size:13px;flex:none}.row .bar{flex:1}.row b{width:42px;text-align:right;font:13px 'IBM Plex Mono',monospace}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{color:var(--mut);font-size:12px;text-transform:uppercase}
+tr.c{cursor:pointer}tr.c:hover{background:rgba(15,139,141,.08)}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:7px 9px;max-width:100%}
+.btn{background:var(--teal);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600}.btn.s{background:none;color:var(--ink);border:1px solid var(--line)}.btn.d{background:var(--bad)}
+.f{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.f label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--line)}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--gold)}
+.q{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}.q button{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px}.q button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.hint{color:var(--mut);font-size:12px}.tb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+</style></head><body>
+<header><small>NBI · Economic Inclusion</small><h1>Newcastle IRM – Selection & Diagnostic Hub</h1><nav id="nav"></nav></header>
+<main id="app"></main>
+<script>
+const ST=['Received','Shortlisted','Site verified','Selected','Onboarded','Waitlisted','Declined'];
+const EL=[['cipc','CIPC registered (CoR 14.3)'],['yrs','Operating 2+ years'],['blk','Black-owned per B-BBEE'],['irm','Active in an IRM trade (installations, repair and maintenance)'],['wil','Willing to take part in assessments, training, coaching and M&E'],['hst','Willing to host an IRM learner'],['evd','Can evidence operations (site visit, records, compliance docs)']];
+const CR={sel:{t:'Cohort selection scorecard',c:[
+['biz','Business capability & records',15,['No separate records; cash mixed with personal','Basic invoices and bookkeeping; some costing','Up-to-date books, costed quotes, cash flow tracked']],
+['mkt','Market position & access potential',20,['No buyer relationships or panel exposure','Repeat clients; aware of panel criteria','On or near panels, or live buyer leads with a clear route']],
+['gro','Growth potential',20,['Flat or declining; no plan','Stable revenue; informal growth idea','Rising turnover, credible plan, constraint identified']],
+['cmp','Compliance readiness',15,['Major gaps (tax, COIDA, OHS)','Some documents; gaps closable within 3 months','Largely compliant: tax, B-BBEE, COIDA, OHS file']],
+['emp','Jobs & youth',10,['Owner only','1–4 employees, limited youth','5+ employees, or strong youth share/ownership']],
+['grn','Green / resource-efficiency fit',10,['No relevant services','Occasional efficiency work','Offers water, energy, materials or waste efficiency']],
+['hos','Learner host readiness',10,['No supervision or safety capability','Supervisor available; OHS gaps closable','Qualified supervisor, safe sites, clear learner tasks']]]},
+fin:{t:'Growth finance scorecard (up to R60,000)',c:[
+['cas','Growth case & constraint justification',25,['Vague; no link to a constraint','Clear need, partly costed','Costed plan tied to a diagnosed constraint and market opportunity']],
+['abs','Absorptive capacity (can deploy in time)',15,['Unlikely to spend within the programme','Can spend with support','Ready, with quotes and delivery plan']],
+['rec','Financial records & traceability',20,['No records; cash only','Partial records','Management accounts, bank trail, invoices']],
+['imp','Revenue & jobs impact',20,['Little visible effect','Moderate revenue or job effect','Clear, measurable revenue and job gains']],
+['evi','Market evidence (quotes, leads, pilots)',10,['None','Some leads','Signed pilots, orders or active quotes']],
+['rsk','Risk & integrity',10,['Red flags in due diligence','Minor concerns, manageable','Clean; sound record with past funders']]]}};
+const DA={
+biz:['Business management',['Separate business bank account and records','Prepares costed quotations and estimates','Tracks cash flow and supplier payments','Uses job cards, scheduling and customer records']],
+tec:['Technical & green',['Quality sign-off on completed repairs','Has tools and equipment for current work','Offers water-loss, efficient lighting, insulation or similar','Practises repair-before-replace and waste handling']],
+cmp:['Compliance',['SARS tax compliance in good standing','COIDA letter of good standing','OHS file and safe work procedures','B-BBEE affidavit, CIPC and CSD supplier registration']],
+mkt:['Market readiness',['Capability profile and photo portfolio','Repeat clients in the last 12 months','Knows insurer and property-manager vendor requirements','Submitted quotes or vendor applications in the last 12 months']],
+fin:['Finance readiness',['Management accounts or financial statements','Can forecast cash flow','Knows funding options and has applied before','Has a costed growth plan']],
+wpl:['Workplace learning',['Experienced supervisor on site','Safe work available for a learner','Can set structured learner tasks','Has hosted an apprentice before']]};
+const MAP={biz:'Capacity building · Coaching',tec:'Technical support',cmp:'Technical support (compliance, certification)',mkt:'Networking · Marketing · Market access',fin:'Growth finance readiness',wpl:'Workplace learning (host readiness)'};
+const SC=['None','Ad hoc','Partly in place','Documented & used'];
+const GD=[['Need for Achievement','Achievement',[1,6,10,15,19,24,28,33,37,42,46,51]],['Need for Autonomy','Autonomy',[3,12,21,30,39,48]],['Creative Tendency','Creativity',[5,8,14,17,23,26,32,35,41,44,50,53]],['Calculated Risk Taking','Risk taking',[2,9,11,18,20,27,29,36,38,45,47,54]],['Locus of Control','Control',[4,7,13,16,22,25,31,34,40,43,49,52]]];
+const GT=["I would not mind routine unchallenging work if the pay and pension prospects were good.","I like to test boundaries and get into areas where few have worked before.","I tend not to like to stand out or be unconventional.","Capable people who fail to become successful have not usually taken chances when they have occurred.","I rarely day dream.","I find it difficult to switch off from work completely.","You are either naturally good at something or you are not, effort makes no difference.","Sometimes people find my ideas unusual.","I would rather buy a lottery ticket than enter a competition.","I like challenges that stretch my abilities and get bored with things I can do quite easily.","I would prefer to have a moderate income in a secure job rather than a high income in a job that depended on my performance.","At work, I often take over projects and steer them my way without worrying about what other people think.","Many of the bad times that people experience are due to bad luck.","Sometimes I think about information almost obsessively until I come up with new ideas and solutions.","If I am having problems with a task I leave it, forget it and move on to something else.","When I make plans I nearly always achieve them.","I do not like unexpected changes to my weekly routines.","If I wanted to achieve something and the chances of success were 50/50 I would take the risk.","I think more of the present and past than of the future.","If I had a good idea for making some money, I would be willing to invest my time and borrow money to enable me to do it.","I like a lot of guidance to be really clear about what to do in work.","People generally get what they deserve.","I am wary of new ideas, gadgets and technologies.","It is more important to do a job well than to try to please people.","I try to accept that things happen to me in life for a reason.","Other people think that I'm always making changes and trying out new ideas.","If there is a chance of failure I would rather not do it.","I get annoyed if people are not on time for meetings.","Before I make a decision I like to have all the facts no matter how long it takes.","I rarely need or want any assistance and like to put my own stamp on work that I do.","You are not likely to be successful unless you are in the right place at the right time.","I prefer to be quite good at several things rather than very good at one thing.","I would rather work with a person I liked who was not good at the job, rather than work with someone I did not like even if they were good at the job.","Being successful is a result of working hard, luck has little to do with it.","I prefer doing things in the usual way rather than trying out new methods.","Before making an important decision I prefer to weigh up the pro's and con's fairly quickly rather than spending a long time thinking about it.","I would rather work on a task as part of a team rather than take responsibility for it myself.","I would rather take an opportunity that might lead to even better things than have an experience that I am sure to enjoy.","I usually do what is expected of me and follow instructions carefully.","For me, getting what I want is a just reward for my efforts.","I like to have my life organised so that it runs smoothly and to plan.","When I am faced with a challenge I think more about the results of succeeding than the effects of failing.","I believe that destiny determines what happens to me in life.","I like to spend time with people who have different ways of thinking.","I find it difficult to ask for favours from other people.","I get up early, stay late or skip meals if I have a deadline for some work that needs to be done.","What we are used to is usually better than what is unfamiliar.","I get annoyed if superiors or colleagues take credit for my work.","People's failures are rarely the result of their poor judgement.","Sometimes I have so many ideas that I feel pressurised.","I find it easy to relax on holiday and forget about work.","I get what I want from life because I work hard to make it happen.","It is harder for me to adapt to change than keep to a routine.","I like to start interesting projects even if there is no guaranteed payback for the money or time I have to put in."];
+const GR=[["I have overcome setbacks to conquer an important challenge.",false,"pe"],["New ideas and projects sometimes distract me from previous ones.",true,"ci"],["My interests change from year to year.",true,"ci"],["Setbacks don't discourage me.",false,"pe"],["I have been obsessed with an idea for a short time but later lost interest.",true,"ci"],["I am a hard worker.",false,"pe"],["I often set a goal but later choose to pursue a different one.",true,"ci"],["I have difficulty maintaining focus on projects that take more than a few months.",true,"ci"],["I finish whatever I begin.",false,"pe"],["I have achieved a goal that took years of work.",false,"pe"],["I become interested in new pursuits every few months.",true,"ci"],["I am diligent.",false,"pe"]];
+const GL=['Not like me at all','Not much like me','Somewhat like me','Mostly like me','Very much like me'];
+const gl=t=>t>=44?'Very High':t>=34?'High':t>=27?'Moderate':'Low';
+const gtl=v=>v>=4.5?'Exceptional':v>=4?'Strong':v>=3.5?'Good':v>=3?'Developing':'Needs focus';
+const DL=[['2026-10-23','Opportunity advert and form published'],['2026-11-06','Shortlist'],['2026-11-13','Site verification reports'],['2026-11-20','Panel selection'],['2026-11-30','Contracting and onboarding']];
+const IRL=[['cr','Customer','Do buyers need and want what you offer?',['You have an idea but have not yet spoken to buyers about it.','Some clients have said they would use you; you have quoted or done pilot jobs.','Repeat or contracted buyers; on, or being assessed for, a buyer panel or vendor list.']],
+['tr','Technology','Is your service or delivery method ready?',['The service or method is new to you and untested.','You deliver it reliably on small jobs with your own tools and methods.','Proven on many jobs with quality sign-off, certified where needed, ready to scale.']],
+['br','Business','Do you have a sustainable business model?',['You do not yet know your costs, prices or margins.','You cost jobs and know your margins, but cash flow is uneven.','Profitable, with tracked pricing and cash flow and a plan to grow.']],
+['ip','IPR','Are your brand, certificates and methods protected?',['No registered name, brand or certificates.','Registered business name and some trade certificates or supplier registrations.','Brand, certificates and supplier registrations in place; own methods or designs protected.']],
+['tm','Team','Do you have the right people?',['You work alone or with casual help; skill gaps not identified.','A small regular team with clear roles; some skill gaps known.','A skilled, stable team with supervision and training in place.']],
+['fr','Funding','Are you ready for funding?',['No records to show a funder; self-funded from savings or cash.','Basic records; you have approached or used small loans or grants.','Funding-ready records and a costed plan, with access to finance.']]];
+function radar(il){const n=IRL.length,pt=(i,r)=>[90+r*Math.sin(2*Math.PI*i/n),90-r*Math.cos(2*Math.PI*i/n)],ring=m=>IRL.map((_,i)=>pt(i,70*m/9).join(',')).join(' '),poly=IRL.map(([k],i)=>pt(i,70*((il||{})[k]||0)/9).join(',')).join(' ');
+return `<svg viewBox="0 0 180 180" width="220" role="img" aria-label="Innovation readiness radar">${[3,6,9].map(m=>`<polygon points="${ring(m)}" fill="none" stroke="var(--line)"/>`).join('')}<polygon points="${poly}" fill="var(--teal)" fill-opacity=".3" stroke="var(--teal)" stroke-width="2"/>${IRL.map(([,nm],i)=>{const[x,y]=pt(i,84);return `<text x="${x}" y="${y}" font-size="8" text-anchor="middle" fill="var(--mut)">${nm}</text>`}).join('')}</svg>`}
+function Il(id,k,v){const a=A(id);(a.il=a.il||{})[k]=v===''?undefined:+v;save();render()}
+function irlc(a){return `<div class="card"><h3>Innovation readiness (KTH IRL, adapted)</h3><p class="hint">Level 1–9 per dimension. Self-rated by the applicant on the application form when imported. NBI can adjust it at the diagnostic and site visit.</p>${IRL.map(([k,n,q,an])=>`<label>${n}: ${q} <select onchange="Il('${a.id}','${k}',this.value)"><option value="">–</option>${[1,2,3,4,5,6,7,8,9].map(v=>`<option ${(a.il||{})[k]===v?'selected':''}>${v}</option>`).join('')}</select></label><div class="hint">1–3: ${an[0]} · 4–6: ${an[1]} · 7–9: ${an[2]}</div>`).join('')}</div>`}
+const $=s=>document.querySelector(s);
+const e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let MSG='',CF=null;
+let S;try{S=JSON.parse(localStorage.getItem('irm-nc')||'null')}catch(_){}
+S=S||{apps:[],w:{},tab:'dash',cur:null,dq:null,f:'',q:''};
+S.apps.forEach(a=>{if(a.gv!==2){a.gt={};a.gr={};a.gv=2}});
+function save(){try{localStorage.setItem('irm-nc',JSON.stringify(S))}catch(_){}}
+const W=(s,k,d)=>S.w[s+k]??d;
+const A=id=>S.apps.find(a=>a.id===id);
+const isEl=a=>EL.every(([k])=>a.el&&a.el[k]);
+const fy=a=>a.g==='F'&&a.yo;
+function score(a,s){let tw=0,t=0,n=0;CR[s].c.forEach(([k,,w])=>{const ww=W(s,k,w);tw+=ww;const v=(a.sc||{})[s+k];if(v!==undefined&&v!==''){n++;t+=ww*v/5}});return n?Math.round(t/tw*1000)/10:null}
+function dres(a){return Object.keys(DA).map(k=>{const qs=DA[k][1];let t=0,n=0;qs.forEach((_,i)=>{const v=(a.dg||{})[k+i];if(v!==undefined){t+=v;n++}});return{k,n,tot:qs.length,p:n?Math.round(t/(qs.length*3)*100):null}})}
+function nav(){const T=[['dash','Dashboard'],['apps','Applications'],['diag','Diagnostic'],['crit','Criteria & data']];$('#nav').innerHTML=T.map(([k,n])=>`<button class="${S.tab===k?'on':''}" onclick="go('${k}')">${n}</button>`).join('')}
+function go(t,id){MSG='';CF=null;S.tab=t;if(id!==undefined)S.cur=id;save();render()}
+function render(){const y=scrollY;nav();$('#app').innerHTML=(MSG?`<div class="card ok">${e(MSG)}</div>`:'')+({dash,apps,diag,crit})[S.tab]();scrollTo(0,y)}
+function cf(k,fn){if(CF===k){CF=null;fn();render()}else{CF=k;render()}}
+function U(id,f,v){A(id)[f]=v;save();render()}
+function Ck(id,k,v){const a=A(id);(a.el=a.el||{})[k]=v;save();render()}
+function Sc(id,k,v){const a=A(id);(a.sc=a.sc||{})[k]=v===''?undefined:+v;save();render()}
+function Dq(id,k,v){const a=A(id);(a.dg=a.dg||{})[k]=v;save();render()}
+function opts(l,v){return l.map(x=>`<option ${x===v?'selected':''}>${e(x)}</option>`).join('')}
+function dash(){
+const P=S.apps,el=P.filter(isEl),act=P.filter(a=>a.st!=='Declined'),co=P.filter(a=>['Selected','Onboarded'].includes(a.st));
+const rk=el.filter(a=>a.st!=='Declined').map(a=>({a,s:score(a,'sel')})).sort((x,y)=>(y.s??-1)-(x.s??-1));
+const top=rk.slice(0,20),tf=top.filter(x=>fy(x.a)).length,cf=co.filter(fy).length;
+const mx=Math.max(1,...ST.map(s=>P.filter(a=>a.st===s).length));
+const dg=P.filter(a=>a.dg&&Object.keys(a.dg).length);
+const ar=Object.keys(DA).map(k=>{const v=dg.map(a=>dres(a).find(r=>r.k===k).p).filter(x=>x!==null);return[k,v.length?Math.round(v.reduce((s,x)=>s+x,0)/v.length):null]});
+const td=new Date();td.setHours(0,0,0,0);
+return `<div class="grid">${[['Applications',P.length],['Eligible (all 7 gates)',el.length],['Shortlisted+',P.filter(a=>ST.indexOf(a.st)>=1&&ST.indexOf(a.st)<=4).length],['Cohort so far',co.length+' / 20'],['Female youth-owned',cf+' / 6'],['Diagnostics done',dg.length]].map(([l,v])=>`<div class="card"><div class="k">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+<div class="card"><h3>Pipeline by stage</h3>${ST.map(s=>{const n=P.filter(a=>a.st===s).length;return `<div class="row"><span>${s}</span><div class="bar"><i style="width:${n/mx*100}%"></i></div><b>${n}</b></div>`}).join('')}</div>
+<div class="card"><h3>Key dates</h3>${DL.map(([d,t])=>{const n=Math.round((new Date(d+'T00:00:00')-td)/864e5);return `<div class="row"><span style="width:auto;flex:1">${t}<br><span class="hint">${new Date(d+'T00:00:00').toDateString()}</span></span><b class="${n<0?'bad':n<=7?'warn':''}" style="width:70px">${n<0?Math.abs(n)+'d ago':n===0?'today':n+'d'}</b></div>`}).join('')}</div>
+<div class="card"><h3>Cohort balance check</h3><p>If the top 20 eligible applicants by score were chosen today: <b>${tf}</b> female youth-owned (minimum 6).</p>${top.length<20?`<p class="hint">Only ${top.length} eligible applicants ranked so far.</p>`:''}<p class="${tf>=6?'ok':'bad'}">${top.length?tf>=6?'Meets the 30% minimum.':'Below the minimum: consider swapping in the highest-scoring female youth-owned applicants from the waitlist.':'No data yet.'}</p></div>
+<div class="card"><h3>Average diagnostic score by area</h3>${dg.length?ar.map(([k,p])=>`<div class="row"><span>${DA[k][0]}</span><div class="bar"><i style="width:${p??0}%;background:${p!==null&&p<40?'var(--bad)':'var(--teal)'}"></i></div><b>${p??'–'}%</b></div>`).join('')+'<p class="hint">Lowest areas indicate where group training is most needed.</p>':'<p class="hint">Complete diagnostics to see group-level needs.</p>'}</div></div>
+${ecard(P)}<div class="card"><h3>Top ranked eligible applicants</h3><div class="wrap"><table><tr><th>#</th><th>Business</th><th>Trade</th><th>F youth</th><th>Score</th><th>Stage</th></tr>${rk.slice(0,10).map((x,i)=>`<tr class="c" onclick="go('apps','${x.a.id}')"><td>${i+1}</td><td>${e(x.a.n)}</td><td>${e(x.a.tr)}</td><td>${fy(x.a)?'Yes':''}</td><td>${x.s??'–'}</td><td>${x.a.st}</td></tr>`).join('')||'<tr><td colspan=6 class="hint">No eligible applicants yet.</td></tr>'}</table></div></div>`}
+function apps(){
+if(S.cur&&A(S.cur))return detail(A(S.cur));
+const L=S.apps.filter(a=>(!S.f||a.st===S.f)&&(!S.q||(a.n+a.o).toLowerCase().includes(S.q.toLowerCase())));
+return `<div class="card"><h3>Import applications</h3><p class="hint">Paste the application codes sent by applicants (one per line), or choose application files (.json). Applications already imported are skipped.</p><textarea id="jc" style="width:100%;min-height:70px;font-family:'IBM Plex Mono',monospace" placeholder="IRM3.\u2026"></textarea><div class="tb" style="margin:8px 0 0"><button class="btn" onclick="impCodes('jc')">Import codes</button><label class="btn s" style="cursor:pointer">Import files (.json)<input type="file" accept=".json,application/json" multiple hidden onchange="impFiles(this)"></label></div></div>
+<div class="tb"><button class="btn" onclick="add()">+ Add application</button><select onchange="S.f=this.value;render()"><option value="">All stages</option>${ST.map(s=>`<option ${S.f===s?'selected':''}>${s}</option>`).join('')}</select><input placeholder="Search" value="${e(S.q)}" onchange="S.q=this.value;render()"></div>
+<div class="card wrap"><table><tr><th>Business</th><th>Owner</th><th>Trade</th><th>Area</th><th>F youth</th><th>Eligible</th><th>Selection</th><th>Finance</th><th>Diagnostic</th><th>Stage</th></tr>${L.map(a=>{const d=dres(a).filter(r=>r.n).length;return `<tr class="c" onclick="go('apps','${a.id}')"><td>${e(a.n)||'(unnamed)'}</td><td>${e(a.o)}</td><td>${e(a.tr)}</td><td>${e(a.ar)}</td><td>${fy(a)?'Yes':''}</td><td class="${isEl(a)?'ok':'bad'}">${isEl(a)?'Yes':'No'}</td><td>${score(a,'sel')??'–'}</td><td>${score(a,'fin')??'–'}</td><td>${d}/6</td><td>${a.st}</td></tr>`}).join('')||'<tr><td colspan=10 class="hint">No applications yet. Import applications above, add one, or load demo data under Criteria & data.</td></tr>'}</table></div>`}
+function add(){const id='a'+Date.now();S.apps.push({id,n:'',o:'',g:'M',yo:false,ar:'Newcastle',tr:'Plumbing',pos:'Insurance-panel active',st:'Received',el:{},sc:{},dg:{},yrs:'',ft:'',pt:'',yj:'',to:'',as:'',cn:'Compliance',nt:''});S.cur=id;save();render()}
+function detail(a){const id=a.id,N=(f,t='text')=>`value="${e(a[f])}" type="${t}" onchange="U('${id}','${f}',this.value)"`;
+const card=s=>`<div class="card"><h3>${CR[s].t} <span class="tag">${score(a,s)??'–'} / 100</span></h3>${CR[s].c.map(([k,n,w,an])=>`<div style="margin:8px 0"><label>${n} <span class="hint">(weight ${W(s,k,w)})</span> <select onchange="Sc('${id}','${s+k}',this.value)"><option value="">–</option>${[0,1,2,3,4,5].map(v=>`<option ${(a.sc||{})[s+k]===v?'selected':''}>${v}</option>`).join('')}</select></label><div class="hint">1: ${an[0]} · 3: ${an[1]} · 5: ${an[2]}</div></div>`).join('')}</div>`;
+return `<div class="tb"><button class="btn s" onclick="go('apps',null)">← All applications</button><button class="btn s" onclick="go('diag');S.dq='${id}';render()">Open diagnostic</button><button class="btn d" onclick="cf('d${id}',()=>{S.apps=S.apps.filter(x=>x.id!=='${id}');S.cur=null;save()})">${CF==='d'+id?'Click again to confirm':'Delete'}</button></div>
+<div class="card"><h2>${e(a.n)||'New application'}</h2><div class="f">
+<label>Business name<input ${N('n')}></label><label>Owner<input ${N('o')}></label>
+<label>Owner gender<select onchange="U('${id}','g',this.value)">${opts(['F','M','O'],a.g)}</select></label>
+<label>Youth-owned (35 or under)<select onchange="U('${id}','yo',this.value==='Yes')">${opts(['Yes','No'],a.yo?'Yes':'No')}</select></label>
+<label>Area<select onchange="U('${id}','ar',this.value)">${opts(['Newcastle','Madadeni','Osizweni','Other Majuba'],a.ar)}</select></label>
+<label>Main trade<select onchange="U('${id}','tr',this.value)">${opts(['Plumbing','Electrical','Roofing','Waterproofing','Ceilings','Glazing','Carpentry','Painting','Other'],a.tr)}</select></label>
+<label>Market position<select onchange="U('${id}','pos',this.value)">${opts(['Insurance-panel active','Excluded from panels','Self-created growth'],a.pos)}</select></label>
+<label>Stage<select onchange="U('${id}','st',this.value)">${opts(ST,a.st)}</select></label></div></div>
+<div class="card"><h3>Eligibility gates <span class="tag ${isEl(a)?'ok':'bad'}">${isEl(a)?'Eligible':'Not yet eligible'}</span></h3>${EL.map(([k,n])=>`<label style="display:block;margin:4px 0"><input type="checkbox" ${(a.el||{})[k]?'checked':''} onchange="Ck('${id}','${k}',this.checked)"> ${n}</label>`).join('')}</div>
+<div class="card"><h3>Baseline numbers (for outcome indicators)</h3><div class="f">
+<label>Years trading<input ${N('yrs','number')}></label><label>Full-time jobs<input ${N('ft','number')}></label><label>Part-time jobs<input ${N('pt','number')}></label><label>Youth jobs (35 or under)<input ${N('yj','number')}></label><label>Turnover, last 12 months (R)<input ${N('to','number')}></label><label>Total assets (R)<input ${N('as','number')}></label>
+<label>Biggest constraint<select onchange="U('${id}','cn',this.value)">${opts(['Compliance','Finance','Market access','Skills','Equipment','Other'],a.cn)}</select></label></div><p class="hint">Verify against SARS EMP201 / UIF UI19, payroll or registers, and management accounts at onboarding.</p></div>
+${card('sel')}${card('fin')}
+<div class="card"><h3>Notes</h3><textarea style="width:100%;min-height:70px" onchange="U('${id}','nt',this.value)">${e(a.nt)}</textarea></div>`}
+function Gt(id,n,v){const a=A(id);a.gv=2;(a.gt=a.gt||{})[n]=v;save();render()}
+function Gr(id,n,v){const a=A(id);a.gv=2;(a.gr=a.gr||{})[n]=v;save();render()}
+function eres(a){const g=a.gt||{},r=a.gr||{};
+const ok=n=>g[n]==='A'||g[n]==='D',sg=n=>ok(n)&&((n%2===0)===(g[n]==='A'))?1:0;
+const d=GD.map(([f,s,q])=>({n:s,s:q.reduce((t,x)=>t+sg(x),0),t:q.length,m:q.filter(ok).length}));
+const ga=d.reduce((t,y)=>t+y.m,0),gs=d.reduce((t,y)=>t+y.s,0);
+const av=l=>l.length?Math.round(l.reduce((s,y)=>s+y,0)/l.length*100)/100:null;
+const sc=si=>{const v=[];GR.forEach(([,rv,x],i)=>{const k=r[i+1];if((si===0||x===si)&&k>=1&&k<=5)v.push(rv?6-k:k)});return av(v)};
+const gn=GR.filter((_,i)=>r[i+1]>=1).length;
+return{d,ga,gs,gn,sub:[sc('pe'),sc('ci')],gr:sc(0)}}
+function esum(a){const x=eres(a);return `<h3 style="margin-top:14px">Entrepreneurial profile</h3><div class="row"><span style="width:150px">GET2 (${x.ga}/54 answered)</span><div class="bar"><i style="width:${x.gs/54*100}%"></i></div><b style="width:90px">${x.ga?x.gs+'/54 '+gl(x.gs):'\u2013'}</b></div><p class="hint">${x.d.map(y=>`${y.n} ${y.m?y.s+'/'+y.t:'\u2013'}`).join(' \u00b7 ')}</p><div class="row"><span style="width:150px">Grit (${x.gn}/12 answered)</span><div class="bar"><i style="width:${(x.gr||0)/5*100}%"></i></div><b style="width:90px">${x.gr?x.gr+' '+gtl(x.gr):'\u2013'}</b></div><p class="hint">Perseverance of effort ${x.sub[0]??'\u2013'} \u00b7 Consistency of interest ${x.sub[1]??'\u2013'}. For coaching design only; not used in ranking.</p><h3 style="margin-top:14px">Innovation readiness (KTH IRL)</h3>${radar(a.il)}<p class="hint">${IRL.map(([k,n])=>n+' '+((a.il||{})[k]||'\u2013')).join(' \u00b7 ')}</p>`}
+function eprof(a){const g=a.gt||{},r=a.gr||{};return `<div class="card"><h3>GET2: enterprising tendency (54 statements)</h3><p class="hint">Agree or disagree with each statement. Even-numbered statements score on Agree and odd-numbered on Disagree.</p>${GT.map((t,i)=>`<div><span class="hint">${i+1}.</span> ${t}<div class="q">${[['Agree','A'],['Disagree','D']].map(([s,v])=>`<button class="${g[i+1]===v?'on':''}" onclick="Gt('${a.id}',${i+1},'${v}')">${s}</button>`).join('')}</div></div>`).join('')}</div><div class="card"><h3>Grit scale (12 statements)</h3><p class="hint">How much does each statement describe you?</p>${GR.map(([t],i)=>`<div><span class="hint">${i+1}.</span> ${t}<div class="q">${GL.map((s,v)=>`<button class="${r[i+1]===v+1?'on':''}" onclick="Gr('${a.id}',${i+1},${v+1})">${s}</button>`).join('')}</div></div>`).join('')}</div>`}
+function ecard(P){const il=P.filter(a=>a.il&&Object.keys(a.il).length),E=P.map(eres),g=E.filter(x=>x.ga===54),r=E.filter(x=>x.gn===12);
+const av=l=>Math.round(l.reduce((s,y)=>s+y,0)/l.length*10)/10;
+return `<div class="card"><h3>Entrepreneurial profile (completed assessments)</h3>${g.length?`<p>GET2 average <b>${av(g.map(x=>x.gs))}</b>/54 across ${g.length} complete. ${['Very High','High','Moderate','Low'].map(b=>b+' '+g.filter(x=>gl(x.gs)===b).length).join(' \u00b7 ')}</p>${GD.map(([,s,q],i)=>`<div class="row"><span>${s}</span><div class="bar"><i style="width:${av(g.map(x=>x.d[i].s))/q.length*100}%"></i></div><b>${av(g.map(x=>x.d[i].s))}</b></div>`).join('')}`:'<p class="hint">No completed GET2 yet.</p>'}${r.length?`<p>Grit average <b>${av(r.map(x=>x.gr))}</b>/5 across ${r.length} complete (${gtl(av(r.map(x=>x.gr)))})</p>`:'<p class="hint">No completed grit scale yet.</p>'}${il.length?`<p>Innovation readiness average (1–9): ${IRL.map(([k,n])=>n+' '+(Math.round(il.map(a=>a.il[k]||0).reduce((s,y)=>s+y,0)/il.length*10)/10)).join(' · ')}</p>`:''}</div>`}
+function Pq(id){S.dq=id;save();render()}
+function diag(){
+const a=A(S.dq);
+const pick=`<div class="tb"><select onchange="Pq(this.value)"><option value="">Select an applicant…</option>${S.apps.map(x=>`<option value="${x.id}" ${x.id===S.dq?'selected':''}>${e(x.n)||'(unnamed)'}</option>`).join('')}</select></div>`;
+if(!a)return pick+'<div class="card hint">Choose an applicant to complete the baseline diagnostic. Rate each statement 0–3: None, Ad hoc, Partly in place, Documented & used. Scores feed the Enterprise Development Plan priorities.</div>';
+const r=dres(a),low=r.filter(x=>x.p!==null).sort((x,y)=>x.p-y.p).slice(0,2).map(x=>x.k);
+return pick+`<div class="card"><h3>${e(a.n)}: diagnostic result</h3>${r.map(x=>`<div class="row"><span style="width:150px">${DA[x.k][0]}</span><div class="bar"><i style="width:${x.p??0}%;background:${low.includes(x.k)?'var(--gold)':'var(--teal)'}"></i></div><b>${x.p??'–'}%</b></div>`).join('')}
+<p><b>Priority areas for the EDP:</b> ${low.length?low.map(k=>`${DA[k][0]} → ${MAP[k]}`).join('; '):'complete some questions first'}.</p>${esum(a)}<p class="hint">Component suggestions are a starting menu to test with the owner, not a fixed package. Diagnosed constraint: ${e(a.cn)}.</p></div>
+${Object.keys(DA).map(k=>`<div class="card"><h3>${DA[k][0]}</h3>${DA[k][1].map((q,i)=>`<div>${q}<div class="q">${SC.map((s,v)=>`<button class="${(a.dg||{})[k+i]===v?'on':''}" onclick="Dq('${a.id}','${k+i}',${v})">${v} ${s}</button>`).join('')}</div></div>`).join('')}</div>`).join('')}${eprof(a)}${irlc(a)}`}
+function crit(){
+const tbl=s=>`<div class="card"><h3>${CR[s].t}</h3><div class="wrap"><table><tr><th>Criterion</th><th>Weight</th><th>1 (low)</th><th>3 (mid)</th><th>5 (high)</th></tr>${CR[s].c.map(([k,n,w,an])=>`<tr><td>${n}</td><td><input type="number" style="width:60px" value="${W(s,k,w)}" onchange="S.w['${s+k}']=+this.value;save();render()"></td>${an.map(x=>`<td style="white-space:normal;min-width:150px">${x}</td>`).join('')}</tr>`).join('')}</table></div><p class="hint">Weights total ${CR[s].c.reduce((t,[k,,w])=>t+W(s,k,w),0)} (scores are normalised, so any total works). Each criterion is scored 0–5.</p></div>`;
+return `${tbl('sel')}${tbl('fin')}
+<div class="card"><h3>Selection rules</h3><p>1. Eligibility gates are pass/fail and come before any scoring.<br>2. Rank eligible applicants on the selection scorecard, then verify against site visit evidence.<br>3. The cohort must include at least 6 female youth-owned enterprises, so check composition at panel stage rather than adding bonus points.<br>4. Growth finance (10 enterprises, up to R60,000 each) is scored separately and competitively after onboarding.</p></div>
+<div class="card"><h3>Data</h3><p class="hint">Data is saved in this browser only. Copy the JSON below to back it up or move it to another device.</p><div class="tb"><button class="btn s" onclick="$('#js').value=JSON.stringify(S)">Show export</button><button class="btn s" onclick="imp()">Import from box</button><label class="btn s" style="cursor:pointer">Import application files (.json)<input type="file" accept=".json,application/json" multiple hidden onchange="impFiles(this)"></label><button class="btn s" onclick="impCodes()">Import application codes</button><button class="btn s" onclick="demo()">Load demo data</button><button class="btn d" onclick="cf('clr',()=>{S.apps=[];S.cur=null;S.dq=null;save()})">${CF==='clr'?'Click again to confirm':'Clear all'}</button></div><textarea id="js" style="width:100%;min-height:80px;font-family:'IBM Plex Mono',monospace"></textarea></div>`}
+
+function fromForm(o){if(!o||o.v!==2||!o.i)return null;
+const yrs=d=>{const t=Date.parse(d);return t?Math.max(0,Math.floor((Date.now()-t)/315576e5)):''};
+const el={},gt={},gr={},dg={},F=o.f||{},K=Object.keys(DA);
+EL.forEach(([x],i)=>el[x]=(o.e||'')[i]==='1');[...(o.t||'')].forEach((x,i)=>{if(x==='A'||x==='D')gt[i+1]=x});[...(o.r||'')].forEach((x,i)=>{if(x>='1'&&x<='5')gr[i+1]=+x});
+[...(o.bd||'')].forEach((x,i)=>{if(x>='0'&&x<='3')dg[K[Math.floor(i/4)]+i%4]=+x});
+const q=o.irl||{},il={};[['cr','crl'],['tr','trl'],['br','brl'],['ip','iprl'],['tm','tmrl'],['fr','frl']].forEach(([k,j])=>{if(q[j]>=1&&q[j]<=9)il[k]=+q[j]});
+const nt=['Applied via online form '+(o.at||'').slice(0,10)+'. Contact: '+(o.em||'')+' '+(o.ph||''),F.B20?'Turnover band: '+F.B20:'',F.O5?'Revenue band: '+F.O5:'',F.B21?'Employees band: '+F.B21:''].filter(Boolean).join('. ');
+return{id:'f'+o.i,n:o.n,o:o.o,g:o.g,yo:o.y===1,ar:o.a,tr:o.tr,pos:o.p||'Insurance-panel active',st:'Received',el,sc:{},dg,gt,gr,il,gv:2,yrs:yrs(F.B5),ft:F.O9||'',pt:'',yj:F.O11||'',to:'',as:'',cn:'Compliance',nt,form:F}}
+function done(n,s,b,extra){MSG=n+' application(s) imported'+(s?', '+s+' already present':'')+(b?', '+b+' not recognised':'')+'.'+(extra||' Turnover, total assets and the full/part-time split are bands or blank on the form; verify at onboarding.');save();render()}
+function impFiles(inp){const fs=[...inp.files];if(!fs.length)return;let n=0,s=0,b=0;
+Promise.all(fs.map(f=>f.text().then(t=>{try{const a=fromForm(JSON.parse(t));if(!a)throw 0;if(A(a.id)){s++;return}S.apps.push(a);n++}catch(_){b++}}))).then(()=>done(n,s,b));inp.value=''}
+function decV3(c){const p=c.slice(5).split('|').map(decodeURIComponent);if(p.length!==21)throw 0;const[i,at,n,o,em,ph,g,y,a,tr,e,t,r,l,bd,B5,O9,O11,B20,O5,B21]=p,f={};Object.entries({B5,O9,O11,B20,O5,B21}).forEach(([k,v])=>{if(v)f[k]=v});
+return{v:2,i,at,n,o,em,ph,g,y:+y,a,tr,e,t,r,irl:{crl:+l[0],trl:+l[1],brl:+l[2],iprl:+l[3],tmrl:+l[4],frl:+l[5]},bd,f}}
+async function decCode(c){if(c.startsWith('IRM3.'))return decV3(c);if(c.startsWith('IRM2U.'))return JSON.parse(decodeURIComponent(escape(atob(c.slice(6)))));
+const bin=atob(c.slice(5).replace(/-/g,'+').replace(/_/g,'/')),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+return JSON.parse(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text())}
+async function impCodes(src){const box=$('#'+(src||'js')),L=(box?box.value:'').split(/\s+/).filter(x=>/^IRM[123]/.test(x)),K=Object.keys(DA);let n=0,s=0,b=0;
+for(const c of L){try{
+if(c.startsWith('IRM1.')){const o=JSON.parse(decodeURIComponent(escape(atob(c.slice(5)))));if(A('f'+o.i)){s++;continue}const dg={},gt={},gr={},el={};[...o.d].forEach((x,i)=>{if(x!=='-')dg[K[Math.floor(i/4)]+i%4]=+x});[...o.t].forEach((x,i)=>{if(x!=='-')gt[i+1]=x});[...o.r].forEach((x,i)=>{if(x!=='-')gr[i+1]=+x});EL.forEach(([k],i)=>el[k]=o.e[i]==='1');S.apps.push({id:'f'+o.i,n:o.n,o:o.o,g:o.g,yo:!!o.y,ar:o.a,tr:o.tr,pos:o.p,st:'Received',el,sc:{},dg,gt,gr,il:Object.fromEntries(IRL.map(([k],j)=>[k,o.l&&o.l[j]>=1?+o.l[j]:undefined]).filter(x=>x[1])),gv:2,yrs:o.yr,ft:o.ft,pt:o.pt,yj:o.yj,to:o.to,as:o.as,cn:o.c,nt:'Applied via online form. Contact: '+o.em+' '+o.ph});n++}
+else{const a=fromForm(await decCode(c));if(!a)throw 0;if(A(a.id)){s++;continue}S.apps.push(a);n++}
+}catch(_){b++}}
+done(n,s,b,L.length?'':' Paste application codes into the box first.')}
+function imp(){try{const d=JSON.parse($('#js').value);if(!Array.isArray(d.apps))throw 0;S=Object.assign({apps:[],w:{},tab:'crit',cur:null,dq:null,f:'',q:''},d);save();render()}catch(_){MSG='That does not look like valid exported data.';render()}}
+function demo(){const N=['Mthembu Plumbing','Zulu Roofing & Waterproofing','Khumalo Electrical','Dlamini Painting','Ndlovu Glazing','Majuba Carpentry','Sithole Ceilings','Buthelezi Maintenance'],T=['Plumbing','Roofing','Electrical','Painting','Glazing','Carpentry','Ceilings','Waterproofing'];
+N.forEach((n,i)=>{const el={};EL.forEach(([k],j)=>el[k]=!(i===7&&j===0));const sc={},dg={};['sel','fin'].forEach(s=>CR[s].c.forEach(([k],j)=>sc[s+k]=(i+j*2)%5+1));Object.keys(DA).forEach((k,j)=>DA[k][1].forEach((_,x)=>dg[k+x]=(i*3+j+x)%4));
+S.apps.push({id:'d'+i,n,o:'Owner '+(i+1),g:i%2?'M':'F',yo:i%3!==2,ar:['Newcastle','Madadeni','Osizweni'][i%3],tr:T[i],pos:['Insurance-panel active','Excluded from panels','Self-created growth'][i%3],st:ST[i%5],el,sc,dg,gt:Object.fromEntries(GT.map((_,j)=>[j+1,(i+j)%3?'A':'D'])),gr:Object.fromEntries(GR.map((_,j)=>[j+1,(i*2+j)%5+1])),yrs:2+i,ft:i+1,pt:i%3,yj:i%4,to:150000+i*80000,as:60000+i*40000,cn:['Compliance','Finance','Market access','Skills'][i%4],il:Object.fromEntries(IRL.map(([k],j)=>[k,(i+j)%9+1])),gv:2,nt:'Demo record'})});save();go('dash')}
+render();
+</script></body></html>

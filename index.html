@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Newcastle IRM Enterprise Programme – Application</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--ink:#14213d;--mut:#5b6678;--line:#ddd8c9;--teal:#0f8b8d;--gold:#c8962c;--bad:#b3392f;--ok:#2a7f4f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1626;--card:#16233a;--ink:#e8ebf2;--mut:#9aa6bb;--line:#2a3a56;--teal:#3cc0c2;--gold:#e0b04e;--bad:#ef7b70;--ok:#5cc58a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1626;--card:#16233a;--ink:#e8ebf2;--mut:#9aa6bb;--line:#2a3a56;--teal:#3cc0c2;--gold:#e0b04e;--bad:#ef7b70;--ok:#5cc58a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'IBM Plex Sans',system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:.3em 0}
+header{background:#14213d;color:#fff;padding:16px}header small{color:#c8962c}header h1{font-size:20px;color:#fff;margin:2px 0 10px}
+.pr{height:6px;background:#2c3a5c;border-radius:3px;overflow:hidden}.pr i{display:block;height:100%;background:#c8962c}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mut);gap:4px;margin:10px 0}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px;max-width:100%}
+.q{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}.q button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 12px;cursor:pointer;font:inherit;font-size:14px}.q button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn{background:var(--teal);color:#fff;border:0;border-radius:8px;padding:12px 20px;font:600 15px 'IBM Plex Sans',sans-serif;cursor:pointer}.btn.s{background:none;color:var(--ink);border:1px solid var(--line)}.btn:disabled{opacity:.4;cursor:default}
+.nav{display:flex;justify-content:space-between;gap:10px;margin:8px 0 24px}
+.hint{color:var(--mut);font-size:13px}.bad{color:var(--bad)}.ok{color:var(--ok)}
+textarea{width:100%;min-height:110px;font-family:ui-monospace,monospace;font-size:12px}
+.miss{border-left:3px solid var(--bad);padding-left:8px;margin-left:-11px}
+.irl{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:10px 12px;cursor:pointer;font:inherit;font-size:14px;line-height:1.45}
+.opt b{flex:none;font:600 12px ui-monospace,monospace;color:var(--mut);min-width:24px;padding-top:2px}
+.opt.on{background:var(--teal);color:#fff;border-color:var(--teal)}.opt.on b{color:#fff}
+.err{color:var(--bad);font-size:12px}.err:empty{display:none}
+.ac{position:relative}.acl{position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.15);overflow:hidden}.acl:empty{display:none}
+.acl button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:14px;padding:10px 12px;cursor:pointer}.acl button:last-child{border-bottom:0}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--gold)}
+</style></head><body>
+<header><small>National Business Initiative · Majuba TVET College</small><h1>Newcastle IRM Enterprise Programme: Application</h1><div class="pr"><i id="pb"></i></div></header>
+<main id="app"></main>
+<script>
+const SUBMIT_URL=''; // Paste the endpoint that receives applications (the Power Automate "When an HTTP request is received" URL).
+const NBI_EMAILS=['OdirileM@nbi.org.za','HawaaK@nbi.org.za']; // Applicants can email their application code to these addresses.
+const PLACES_KEY=''; // Google Maps Platform API key with "Places API (New)" enabled, restricted to the domain that hosts this page. Leave empty to use plain text boxes for addresses.
+let BUSY=false,ERR='';
+const EL=[['cipc','CIPC registered (CoR 14.3)'],['yrs','Operating 2+ years'],['blk','Black-owned per B-BBEE'],['irm','Active in an IRM trade (installations, repair and maintenance)'],['wil','Willing to take part in assessments, training, coaching and M&E'],['hst','Willing to host an IRM learner'],['evd','Can evidence operations (site visit, records, compliance docs)']];
+const GT=["I would not mind routine unchallenging work if the pay and pension prospects were good.","I like to test boundaries and get into areas where few have worked before.","I tend not to like to stand out or be unconventional.","Capable people who fail to become successful have not usually taken chances when they have occurred.","I rarely day dream.","I find it difficult to switch off from work completely.","You are either naturally good at something or you are not, effort makes no difference.","Sometimes people find my ideas unusual.","I would rather buy a lottery ticket than enter a competition.","I like challenges that stretch my abilities and get bored with things I can do quite easily.","I would prefer to have a moderate income in a secure job rather than a high income in a job that depended on my performance.","At work, I often take over projects and steer them my way without worrying about what other people think.","Many of the bad times that people experience are due to bad luck.","Sometimes I think about information almost obsessively until I come up with new ideas and solutions.","If I am having problems with a task I leave it, forget it and move on to something else.","When I make plans I nearly always achieve them.","I do not like unexpected changes to my weekly routines.","If I wanted to achieve something and the chances of success were 50/50 I would take the risk.","I think more of the present and past than of the future.","If I had a good idea for making some money, I would be willing to invest my time and borrow money to enable me to do it.","I like a lot of guidance to be really clear about what to do in work.","People generally get what they deserve.","I am wary of new ideas, gadgets and technologies.","It is more important to do a job well than to try to please people.","I try to accept that things happen to me in life for a reason.","Other people think that I'm always making changes and trying out new ideas.","If there is a chance of failure I would rather not do it.","I get annoyed if people are not on time for meetings.","Before I make a decision I like to have all the facts no matter how long it takes.","I rarely need or want any assistance and like to put my own stamp on work that I do.","You are not likely to be successful unless you are in the right place at the right time.","I prefer to be quite good at several things rather than very good at one thing.","I would rather work with a person I liked who was not good at the job, rather than work with someone I did not like even if they were good at the job.","Being successful is a result of working hard, luck has little to do with it.","I prefer doing things in the usual way rather than trying out new methods.","Before making an important decision I prefer to weigh up the pro's and con's fairly quickly rather than spending a long time thinking about it.","I would rather work on a task as part of a team rather than take responsibility for it myself.","I would rather take an opportunity that might lead to even better things than have an experience that I am sure to enjoy.","I usually do what is expected of me and follow instructions carefully.","For me, getting what I want is a just reward for my efforts.","I like to have my life organised so that it runs smoothly and to plan.","When I am faced with a challenge I think more about the results of succeeding than the effects of failing.","I believe that destiny determines what happens to me in life.","I like to spend time with people who have different ways of thinking.","I find it difficult to ask for favours from other people.","I get up early, stay late or skip meals if I have a deadline for some work that needs to be done.","What we are used to is usually better than what is unfamiliar.","I get annoyed if superiors or colleagues take credit for my work.","People's failures are rarely the result of their poor judgement.","Sometimes I have so many ideas that I feel pressurised.","I find it easy to relax on holiday and forget about work.","I get what I want from life because I work hard to make it happen.","It is harder for me to adapt to change than keep to a routine.","I like to start interesting projects even if there is no guaranteed payback for the money or time I have to put in."];
+const GR=[["I have overcome setbacks to conquer an important challenge.",false,"pe"],["New ideas and projects sometimes distract me from previous ones.",true,"ci"],["My interests change from year to year.",true,"ci"],["Setbacks don't discourage me.",false,"pe"],["I have been obsessed with an idea for a short time but later lost interest.",true,"ci"],["I am a hard worker.",false,"pe"],["I often set a goal but later choose to pursue a different one.",true,"ci"],["I have difficulty maintaining focus on projects that take more than a few months.",true,"ci"],["I finish whatever I begin.",false,"pe"],["I have achieved a goal that took years of work.",false,"pe"],["I become interested in new pursuits every few months.",true,"ci"],["I am diligent.",false,"pe"]];
+const GL=['Not like me at all','Not much like me','Somewhat like me','Mostly like me','Very much like me'];
+const BDO=['None','Ad hoc','Partly in place','Documented & used'];
+const BD=[['Business management',['Separate business bank account and records','Prepares costed quotations and estimates','Tracks cash flow and supplier payments','Uses job cards, scheduling and customer records']],
+['Technical & green',['Quality sign-off on completed repairs','Has tools and equipment for current work','Offers water-loss, efficient lighting, insulation or similar','Practises repair-before-replace and waste handling']],
+['Compliance',['SARS tax compliance in good standing','COIDA letter of good standing','OHS file and safe work procedures','B-BBEE affidavit, CIPC and CSD supplier registration']],
+['Market readiness',['Capability profile and photo portfolio','Repeat clients in the last 12 months','Knows insurer and property-manager vendor requirements','Submitted quotes or vendor applications in the last 12 months']],
+['Finance readiness',['Management accounts or financial statements','Can forecast cash flow','Knows funding options and has applied before','Has a costed growth plan']],
+['Workplace learning',['Experienced supervisor on site','Safe work available for a learner','Can set structured learner tasks','Has hosted an apprentice before']]];
+const BDQ=BD.flatMap(g=>g[1]);
+const IRL=[{"k":"customer","n":"Customer Readiness","c":"CRL","a":"How well do you understand, reach, and serve your target customers? This goes from having a vague idea of who might need your service, all the way to running a thriving, growing customer base.","q":["I have an idea of who might need my service (e.g. homeowners, municipalities, businesses) but I haven’t yet spoken to real potential customers to test whether my idea is right.","I’ve had at least 5 real conversations with potential customers in the IRM sector (building owners, facility managers, government departments) and they’ve confirmed the problem exists.","I’ve drawn up a clear picture of my ideal customer — who they are, what they struggle with, and what it would cost them to pay for my solution. I’ve mapped their journey.","I’ve shown my service concept to at least 10 potential customers and some have given me a letter of intent, a verbal commitment, or agreed to pilot with me.","I have at least 3 paying customers who have paid me for real work. I have invoices or receipts to prove it and I’m learning what they like and don’t like.","I have 10 or more active paying customers, I’m getting repeat work or referrals, and I’ve tested my pricing to make sure it’s competitive and profitable.","I have 30 or more customers, a steady revenue stream coming in every month, and I’m actively looking at serving new types of customers or new areas.","I have 50+ customers across more than one area or region, I use a system to manage customer information and follow-ups, and my customer base is growing consistently.","I’m recognised as a leader in my trade in my region. I earn R1 million+ per month from 100+ active contracts. New customers come to me — I don’t need to chase them."],"s":["Hypothesis","Interviews","Insight","Validated","Transactions","Market-ready","Growth","Scaling","Leader"]},{"k":"technology","n":"Solution Readiness","c":"TRL","a":"In KTH’s framework, ‘Technology’ means your solution — the service or product you deliver. This tracks how well-developed, tested, and proven your service is, from an idea on paper to a fully certified, repeatable operation.","q":["I have a clear idea of what service I want to offer (e.g. electrical installations, solar PV, plumbing) but I haven’t yet delivered it to a real client.","I’ve written down exactly how I would deliver my service — what tools I need, what steps I follow, what the output looks like, and what standards apply (e.g. SANS, SABS).","I’ve demonstrated my service in a training or workshop environment and proven that the concept works, even if not yet with a paying client.","I’ve delivered my service to a real client in a real environment (even if at a reduced rate or as a trial) and the results met the basic quality standard.","I’ve delivered my service to multiple paying clients and the work consistently meets the required standard. I’ve started using quality checklists.","I can deliver my service end-to-end, on spec, on time. I’m MERSETA or SESSA compliant. My tools, suppliers, and processes are tested and reliable.","I’ve delivered this service many times across multiple clients. The quality is consistent and repeatable. I’ve started working toward formal certification (ISO, SANS, etc.).","My service is certified (MERSETA NQF, SESSA, SAQA or equivalent). I have written SOPs. Other team members can deliver the service the same way I do.","My service is fully standardised, certified, and proven across 3 or more locations. I have proprietary delivery toolkits or SOPs that give me a competitive edge."],"s":["Basic idea","Concept","Demo","First delivery","Multi-client","End-to-end","Consistent","Certified","Proven scale"]},{"k":"business","n":"Business Model Readiness","c":"BRL","a":"A sustainable business model means: revenue exceeds costs AND your business creates more positive impact than negative for the environment and society. This axis tracks how developed, tested, and proven your business model is.","q":["I have a rough idea of how I could make money from my service but I haven’t worked out the numbers or formally described my business model.","I can describe my business model informally: what I sell, to whom, at roughly what price, and what my main costs are. I’ve thought about whether it could be sustainable.","I’ve completed a basic Business Model Canvas. I’ve estimated whether revenue will cover costs and I’ve thought about the positive environmental or social value my business creates.","I’ve built a basic financial model — I know my break-even point, I’ve estimated 12-month revenue and costs, and I’ve started measuring my social or environmental contribution.","I’ve tested my business model against real market feedback and real costs. My numbers are realistic. I pay fair wages and use responsible materials or methods.","My revenue has exceeded my costs for at least 3 months in a row. My business is registered with CIPC, I use proper bookkeeping, and I can show proof of sustainability.","My business model has been sustainable for 6+ months. I produce formal financial statements, I’m VAT-registered if applicable, and I measure and report my social/environmental contribution.","I continuously improve my business model. I’m pursuing green certification and B-BBEE compliance and I report my ESG (environmental, social, governance) contribution to funders.","My business has been financially sustainable for 2+ years. I’m audited annually, B-BBEE Level 1–2, VAT-registered, and my positive impact clearly outweighs any negative contributions."],"s":["Value idea","Described","BM Canvas","Modelled","Tested","Revenue+","6mo validated","Optimised","Sustained scale"]},{"k":"ipr","n":"IPR Readiness","c":"IPRL","a":"IPR (Intellectual Property Rights) in an IRM business includes your brand, service methods, trade knowledge, supplier relationships, and any unique processes. This axis tracks how well you’ve identified and protected what makes your business unique.","q":["I know that things like my business name, my methods of working, and my knowledge are forms of intellectual property — but I haven’t done anything to identify or protect them yet.","I’ve made a list of my key intellectual property assets: my business name, how I deliver my service, any special processes or tools I use, and my key customer or supplier relationships.","I’ve assessed which of my IP is most valuable and most at risk, and I’ve checked whether anyone else has registered a similar name or process that could affect me.","I’ve drafted a simple IPR protection plan — what I want to protect, how (e.g. trademark, trade secret, copyright), in what order of priority. I’ve spoken to a lawyer or IP advisor about it.","I’ve taken active steps: I’ve filed my business name or trademark with CIPC, I’ve written down my key trade secrets and limited who can access them, and I use NDAs with staff and partners.","My core intellectual property is formally protected. My trademark is registered (if applicable), my service manuals are classified as confidential IP, and my contracts include IP protection clauses.","My brand and protected methods are giving me a real competitive advantage in the market. Clients recognise my name and my differentiated approach. My IP is actively working for my business.","I actively manage an IP portfolio. I’ve considered or am pursuing licensing or franchising my methods. My IP is included in my business valuation documents.","My brand trademark is registered, my proprietary service methodology is legally protected, and I actively license or franchise my IP. My IP is a core business asset with a measurable value."],"s":["Aware","Identified","Assessed","Strategy draft","Initiated","Protected","Leveraged","Portfolio","IP drives value"]},{"k":"team","n":"Team Readiness","c":"TMRL","a":"This axis looks at whether you have the right people with the right skills to deliver and grow your business. It starts with just you (the founder) and grows to a full organisation with management layers.","q":["It’s mainly just me right now. I’m committed to building this business. I have a relevant trade qualification or skill (e.g. I’m a qualified electrician or plumber).","I know what skills my business needs beyond my own. I’ve identified the gaps and I’ve informally connected with advisors, mentors, or other people who can help.","There are 1–2 of us working on this. Between us, we cover the key skills needed and we share the same vision for where the business is going.","Our founding team can validate the business idea and handle early delivery. We each know our roles, even if informally, and we’re all genuinely committed.","We are a team of at least 2 people with formal, agreed roles. We’ve signed a partnership or shareholder agreement. We’ve thought about team diversity (gender, age, skills).","Our team can handle current contracts AND develop the business at the same time. We’ve hired or committed our first employee. We’ve started complying with UIF and COIDA.","We have 5 or more employees. Management responsibilities are starting to spread beyond the founder. We have proper HR systems: employment contracts, leave management, payroll.","We have a formal organisational structure with a leadership team across different functions. We have a plan for what happens if key people leave (succession planning).","We have 10+ full-time employees. Our team is diverse (gender, youth, disability-inclusive). We have full HR compliance, a management layer, and a succession plan in place."],"s":["Founder","Skills mapped","Core team","Validated","Formal roles","Capacity","Scaling","Org built","Full org"]},{"k":"funding","n":"Funding Readiness","c":"FRL","a":"This axis tracks how ready your business is to access, absorb, and grow through funding — from the first small grant to large investment rounds and commercial credit. It also tracks your financial management maturity.","q":["I know I’ll need money to develop my idea. I’ve made a rough estimate of how much I need to get started. I know some IRM funding options exist (like IRM Hub grants or NYDA) but haven’t applied yet.","I’ve researched the main funding options for IRM businesses: IRM Hub grants, SEDA, NEF, NYDA, B-BBEE funds. I’ve committed some of my own money (savings or personal loan) to the idea.","I’ve secured between R5,000 and R15,000 (from personal savings, family, an IRM pre-incubation grant, or NYDA microloan) to validate my idea. I have a basic budget.","My entire validation phase is funded. I track my spending and income. I have basic bookkeeping in place. I have enough money to test and confirm whether my business model works.","I’ve secured between R50,000 and R150,000 (from a SEDA or NEF loan, IRM incubation grant, or first real revenue) to fund my development phase. I have an accounting system.","I’ve secured between R150,000 and R500,000 from a mix of sources (grants, revenue, and a loan). I have auditable financial records and I’ve prepared a basic investor pitch.","I’ve secured R500,000 or more. My financial sustainability is demonstrated. I have the financial track record needed to access performance bonds for larger contracts.","I have access to commercial bank credit. I maintain a 24-month financial forecast. My balance sheet is investment-grade and I’m actively building an investor network.","My business is financially self-sustaining with R2M+ annual revenue. I have access to commercial credit facilities and a strong balance sheet that makes me bondable for major contracts."],"s":["Need ID","Researched","Secured R5-15k","Val funded","Dev funded","Growth funded","Scaling capital","Invest-grade","Self-sustaining"]}];
+const irlDone=()=>IRL.every(a=>ST.i[a.k]);
+function irlPayload(){const v=IRL.map(a=>ST.i[a.k]||0);return{crl:v[0],trl:v[1],brl:v[2],iprl:v[3],tmrl:v[4],frl:v[5],gap:Math.max(...v)-Math.min(...v)}}
+const STEPS=['Welcome','Personal profile','Business profile','Ownership and market','Tax, B-BBEE and support','General Enterprising Tendency','Grit','IRL Diagnostic','Business diagnostic','Submit'];
+const LAST=STEPS.length-1;
+const Qn=(id,l,t='t',o=null,r=null)=>({id,l,t,o,r});
+const V=a=>a.map(x=>x+' TVET College');
+const D=(p,a)=>a.map(x=>p+x);
+const PROV=['Gauteng','North-West','Mpumalanga','Limpopo','Free State','Northern Cape','Western Cape','Kwa-Zulu Natal','Eastern Cape'];
+const DIST={
+'Gauteng':['GP- City of Ekurhuleni Metropolitan','GP- City of Johannesburg Metropolitan','GP- City of Tshwane Metropolitan','GP- Sedibeng District','GP- West Rand District'],
+'Western Cape':D('WC- ',['Cape Winelands District Municipality','Central Karoo District Municipality','City of Cape Town Metropolitan Municipality','Garden Route District Municipality','Overberg District Municipality','West Coast District Municipality']),
+'Eastern Cape':D('EC- ',['Amathole District Municipality','Alfred Nzo Municipality','Cacadu District Municipality','Joe Gqabi Municipality','O.R Tambo Municipality','Chris Hani Municipality','Nelson Mandela Metropolitan','Buffalo City Metropolitan']),
+'Limpopo':D('LP- ',['Capricorn District Municipality','Mopani District Municipality','Sekhukhune District Municipality','Vhembe District Municipality','Waterberg District Municipality']),
+'Free State':D('FS- ',['Fezile Dabi District Municipality','Lejweleputswa District Municipality','Mangaung Metropolitan Municipality','Thabo Mofutsanyana District Municipality','Xhariep District Municipality']),
+'Kwa-Zulu Natal':D('KZN- ',['Amajuba District Municipality','eThekwini Metropolitan','Harry Gwala District Municipality','iLembe District Municipality','King Cetshwayo District Municipality','Ugu District Municipality','uMgungundlovu District Municipality','uMkhanyakude District Municipality','uMzinyathi District Municipality','uThukela District Municipality','Zululand District Municipality']),
+'Northern Cape':D('NC- ',['Frances Baard District Municipality','John Taolo Gaetsewe District Municipality','Namakwa District Municipality','Pixley ka Seme District Municipality','ZF Mgcawu District Municipality']),
+'North-West':D('NW- ',['Bojanala Platinum District Municipality','Dr Kenneth Kaunda District Municipality','Dr Ruth Segomotsi Mompati District Municipality','Ngaka Modiri Molema District Municipality']),
+'Mpumalanga':D('MP- ',['Ehlanzeni District Municipality','Gert Sibande District Municipality','Nkangala District Municipality'])};
+const TVET={
+'Gauteng':[...V(['Central Johannesburg','Ekurhuleni East','Ekurhuleni West','Sedibeng','South West Gauteng','Tshwane North','Tshwane South']),'Gauteng CET','Western TVET'],
+'Free State':[...V(['Flavius Mareka','Goldfields','Maluti','Motheo']),'Free State CET'],
+'Eastern Cape':[...V(['Eastcape Midlands','King Hintsa','King Sabata Dalindyebo','Lovedale','Port Elizabeth']),'Eastern Cape CET'],
+'Kwa-Zulu Natal':[...V(['Coastal','Elangeni','Esayidi','Majuba','Mnambithi','Thekwini','Umfolozi','Umgungundlovu']),'KwaZulu Natal CET','Mthashana TVET College'],
+'Limpopo':['Limpopo CET',...V(['Capricorn','Lephalale','Letaba','Mopani South East','Sekhukhune','Vhembe','Waterberg'])],
+'Mpumalanga':[...V(['Ehlanzeni','Gert Sibande','Nkangala']),'Mpumalanga CET'],
+'Northern Cape':['Northern Cape Rural TVET College','Northern Cape Urban TVET College','Northern Cape CET'],
+'North-West':[...V(['Orbit','Taletso','Vuselela']),'North West CET'],
+'Western Cape':[...V(['Boland']),'College of Cape Town','False Bay College',...V(['Northlink','South Cape','West Coast']),'Western Cape CET']};
+const DIS=['No difficulty','Some difficulty','A lot of difficulty','Cannot do at all'];
+const NQF=['General Certificate (NQF 1)','Grade 4-9 (NQF 1)','Standard 2-7 (NQF 1)','Occupational Certificate (NQF 1)','Elementary Certificate (NQF 2)','Grade 10 (NQF 2)','Standard 8 (NQF 2)','Occupational Certificate (NQF 2)','Intermediate Certificate (NQF 3)','Grade 11 (NQF 3)','Standard 9 (NQF 3)','Occupational Certificate (NQF 3)','National Certificate (NQF 4)','Grade 12 / Matric (NQF 4)','Standard 10 (NQF 4)','Trade Certificate (NQF 4)','Occupational Certificate (NQF 4)','Higher Certificate (NQF 5)','Occupational Certificate (NQF 5)','Bachelor’s Degree (NQF 7)','Advanced Diploma (NQF 7)','Occupational Certificate (NQF 7)','Bachelors Honours Degree (NQF 8)','Postgraduate Diploma (NQF 8)','Bachelor’s Degree (NQF 8)','Occupational Certificate (NQF 8)','Master’s Degree (NQF 9)','Doctoral Degree (NQF 10)'];
+const SECT=['Not Applicable','Agriculture, forestry and fishing','Wholesale and Retail','Education','Mining','Manufacturing','Financial Sector','Transport','Business Services','Construction','Community Services','Renewable Energy','Trade','Automotive','Food and Beverages','Communications','Water','Government','Sales & Merchandising (FMCG)','Tourism/Hospitality','ICT','Conservation','Waste Management and Recycling','Electricity','Other'];
+const INC=['R0 - R3 500','R3 500 - R5 000','R5 000 - R7 500','R7 500 - R10 000','R10 000 - R12 500','R12 500 - R15 000','R15 000 - R17 500','R17 500 - R20 000','R20 000 - R23 000','R23 000 - R25 000','R25 000 - R27 500','R27 500 - R30 000','R30 000 - R33 000','R33 000 - R36 000','R36 000 - R40 000','R40 000 and above','Prefer not to answer'];
+const BSEC=['Automative','Renewable Energy','Recycling and Waste Management','Business Services','Construction','Education','Energy','Manufacturing','Transport','Sales and merchandising','Communications','Community services','Financial sector','Food and beverages','Water','Wholesale and retail','Other (please specify)'];
+const BSVC=['Carpentry: small-scale light manufacturing of carpentry products','Cleaning, Waste and Recycling','General property maintenance','Green economy: detect and reduce utility consumption','Green economy: manufacturing and maintenance of resource efficiency devices (i.e. Energy, water, and waste)','Heating, ventilation, and air conditioning (HVAC) installation, repair, and maintenance or innovate','Mechanical Engineering: Small-scale light manufacturing of products','New technologies: diagnosis, installation, repairs, and maintenance','Plumbing installation, repair, and maintenance','Repairers of other electronic goods','Technicians: agricultural equipment repair and maintenance','Technicians: domestic appliance installation, repair, and maintenance','Technicians: health equipment installation, repair, and maintenance','Technicians: solar PV installation, repair, and maintenance','Welding: small-scale light manufacturing of welding products','Construction: installation, repair, and/or maintenance of tools','Electrical: installation, repair, and/or maintenance of tools, equipment, machinery, and infrastructure.','Plumbing: installation, repair, and/or maintenance of tools, equipment, machinery, and infrastructure.','Other'];
+const BCH=['Crime','Poor Infrastructure','No Internet','Loadshedding','Lack of Customers'];
+const BMOT=['To be my own boss/have more independence','To pursue a passion or turn a hobby into a career','To solve a problem or meet an unmet need in the market','To achieve financial freedom/earn more money','To have a more flexible work schedule/better work-life balance','To create something new or innovate','To make a positive impact on society or their community','To build a legacy or generational wealth','To escape an undesirable job or work environment','For personal growth and learning new skills','N/A'];
+const OWN=['100%','50%','More than 50%','Less than 50%'];
+const YN=['Yes','No'];
+const N05=['0','1','2','3','4','5'];
+const BR=['B10.5',['No']];
+const SEC=[
+{t:'Personal profile',intro:'Tell us about yourself. Where a question has “Prefer not to say”, you may choose it.',g:[
+{h:'About you',q:[
+
+Qn('P2','First name(s)'),
+Qn('P3','Surname'),
+Qn('P4','ID number','id'),
+Qn('P5','Date of birth','d'),
+Qn('P6','Age','m',['Under 18','18-23','24-29','30-35','36 and over']),
+Qn('P8','Pronouns','m',['He/Him','She/Her','They/Them','Other','Prefer not to say']),
+Qn('P9','Ethnicity','m',['Black African','Coloured','Indian / Asian','White','Other']),
+Qn('P10','Nationality','m',['South African','Permanent Resident']),
+Qn('P11.1','Disability: Vision. Do you have difficulty seeing, even if wearing glasses?','m',DIS),
+Qn('P11.2','Disability: Hearing. Do you have difficulty hearing, even if using hearing aid(s)?','m',DIS),
+Qn('P11.3','Disability: Communication. When using your usual language, do you have difficulty communicating, for example understanding or being understood?','m',DIS),
+Qn('P11.4','Disability: Mobility. Do you have difficulty walking or climbing steps?','m',DIS),
+Qn('P11.5','Disability: Self-care. Do you have difficulty with self-care, such as washing all over or dressing?','m',DIS),
+Qn('P11.6','Disability: Cognition. Do you have difficulty remembering or concentrating?','m',DIS),
+Qn('P13','WhatsApp number (if applicable)'),
+Qn('P14','Email address','e'),
+Qn('P15','Preferred method(s) of communication','x',['Phone call','WhatsApp','Email','SMS']),
+Qn('P16','Alternative telephone number')]},
+{h:'Education',q:[
+Qn('P17','Highest level of qualification','m',NQF),
+Qn('P18','Year obtained','y'),
+Qn('P19','Name of qualification'),
+Qn('P20','Institution / school')]},
+{h:'Employment and income',q:[
+Qn('P21','Employment status','m',['Employed','In Training','In Education','NEET (Not in Education, Employment or Training)','Business Owner/Self-Employed']),
+Qn('P22','Employment sector','m',SECT,['P21',['Business Owner/Self-Employed'],true]),
+Qn('P23','Was this (self-)employment in a green job (e.g. in the solar industry or energy efficiency)?','m',['Yes','No','I’m not sure'],['P21',['Business Owner/Self-Employed'],true]),
+Qn('P24','Employment type','m',['Full-time: 40 hours or more a week','Part-time: less than 40 hours a week'],['P21',['Business Owner/Self-Employed'],true]),
+Qn('P25','Contract type','m',['Fixed Term Contract','Permanent Contract','No Contract'],['P21',['Business Owner/Self-Employed'],true]),
+Qn('P26','Employment duration','m',['Less than three months','3-6 months','6-9 months','9-12 months','12-18 months','18-24 months','More than 2 years'],['P21',['Business Owner/Self-Employed'],true]),
+Qn('P27','Income','m',INC),
+Qn('P28','How was/is the income paid?','m',['Paid into bank account','Paid in cash','Not Applicable']),
+Qn('P29','Relevant work experience','a'),
+Qn('P30','How did you acquire your previous skills?','a')]},
+{h:'Household and access',q:[
+Qn('P31','What is your primary mode of transport?','m',['Own Car','Public Transport','Minibus Taxi','Walking','Company Vehicle']),
+Qn('P32','Do you have reliable internet access at home?','m',['Yes - High-speed Fibre (e.g. Vuma)','Yes - Air to Fibre (e.g. Rain)','Yes - Mobile Connection (e.g. Smartphone)','Yes - Unstable','No']),
+Qn('P33','Personal sources of income','a'),
+Qn('P34','Number of household income earners','n'),
+Qn('P35','Source of household income','a'),
+Qn('P36','Are you the sole income earner (breadwinner)?','m',['Yes','No','Prefer not to say']),
+Qn('P37','Have you ever dropped out of training or education (school) before?','m',['Yes','No','Prefer not to say'])]},
+{h:'Where you live',q:[
+Qn('L1','Residential address','a'),
+Qn('L1.1','Residential address GPS location','g'),
+Qn('L2','Township / rural / urban','m',['Peri Urban (Township, Informal settlement)','Rural','Urban']),
+Qn('L3','Province','m',PROV),
+Qn('L4','District municipality','m','DIST:L3'),
+Qn('L6','Ward number'),
+Qn('L7','Postal code'),
+Qn('L8','Nearest TVET college','m','TVET:L3')]}]},
+{t:'Business Profile',intro:'Tell us about the business. ',g:[
+{h:'Business details',gate:',',q:[
+Qn('B1','Business name'),
+Qn('B2','Your position in the business / job title'),
+Qn('B4.1','Business registration number'),
+Qn('B4.2','Business date of registration','d'),
+Qn('B5','Business operating starting date','d'),
+Qn('B6','Legal entity type','m',['Co-Operative','Private Company (Pty Ltd)','Non Profit Company (NPC)','Non Profit Organisation (NPO)','Non Governmental Organisation','Close Corporation (CC)','Public Company','Franchise','Trust']),
+Qn('B7','Business phone number'),
+Qn('B8','Business email address','e'),
+Qn('B9','What industry/sector is your business involved in?','m',BSEC),
+Qn('B9.1','Other industry/sector (please specify)','t',null,['B9',['Other (please specify)']]),
+Qn('B10','Business core products and services','m',BSVC),
+Qn('B10.1','Other core products and services (please specify)','t',null,['B10',['Other']])]},
+{h:'Business location',gate:'B0',q:[
+Qn('B10.5','Is your residential address the same as your business address?','m',YN),
+Qn('B11','Province','m',PROV,BR),
+Qn('B12','Business GPS location (where does your business operate from?)','g',null,BR),
+Qn('B13','Business address','a',null,BR),
+Qn('B14','District municipality','m','DIST:B11',BR),
+Qn('B15','Ward number','t',null,BR),
+Qn('B16','Postal code','t',null,BR),
+Qn('B17','TVET college nearest to the business location','m','TVET:B11',BR),
+Qn('B18','Township / rural location','m',['Peri Urban (Township, Informal Settlement)','Rural','Urban'],BR),
+Qn('B19','What challenges affect operating in your current location?','x',BCH)]},
+{h:'Size and operations',gate:'B0',q:[
+Qn('B20','Current annual average turnover','m',['Less than R240,000','R241,000 to R500,000','R501,000 to R1 million','R1 million to R5 million','R5 million to R10 million','R10 million to R50 million','R50 million to R100 million','R100 million and above','Other (please specify)','Prefer not to say']),
+Qn('B21','Current number of employees','m',['1-5','6-10','11-15','16-20','More than 20']),
+Qn('B22','Your ownership percentage in the business (%)','n'),
+Qn('B23','Number of other business owners','n'),
+Qn('B24','Secondary business contact: First Name(s)'),
+Qn('B25','Secondary business contact: Surname'),
+Qn('B26','Secondary business contact: Cell number'),
+Qn('B27','Secondary business contact: Email address','e'),
+Qn('B28','Business website address / Social media link'),
+Qn('B29','Type of business premises','m',['Business Owned Site/Workshop','Business Rented Site/Workshop','Customer Site/Workshop','Home Based Site/Workshop']),
+Qn('B30','Business financial year-end month','m',['January','February','March','April','May','June','July','August','September','October','November','December']),
+Qn('B31','Does your business have a business bank account?','m',YN),
+Qn('B32','Do you use accounting software?','m',['Yes (Sage/QuickBooks/Xero)','No (manual)']),
+Qn('B33','How digitally enabled is your business?','m',['Fully digital','Partially digital','Mostly manual','Completely manual']),
+Qn('B34','Motivation(s) for starting the business ','x',BMOT)]}]},
+{t:'Ownership and market',intro:'Who owns the business, who it sells to, and who works in it. If a part does not apply to you, answer No to its first question.',g:[
+{h:'Ownership',gate:'O0',q:[
+Qn('O1','Black ownership and management control','m',OWN),
+Qn('O2','Black female ownership','m',OWN),
+Qn('O3','Black youth ownership','m',OWN),
+Qn('O4','Disabled ownership','m',OWN),
+Qn('O5','Business annual revenue (last financial year-end)','m',['R0 - R1 million','R1 - R5 million','R5 - R10 million','R10 - R50 million','R50 - R100 million'])]},
+{h:'Market',gate:'O0',q:[
+Qn('O7','Market geographic reach (Where are most of your customers)','m',['Local Municipality','District','Provincial','National','International']),
+Qn('O8','Main market / revenue source','m',['Domestic Clients (Individual Consumers)','Public Sector Contracts','Private Sector Contracts']),
+Qn('O6','Type of main market / revenue source','m',['Once-Off Project-Based Work','Subcontracting Opportunities','Corporate Supply Chain Purchase Orders','Long-term Service Agreements','Other'])]},
+{h:'Workforce',gate:'O0',q:[
+Qn('O9','Total number of employees','n'),
+Qn('O10','Total number of female employees','n'),
+Qn('O11','Total number of youth employees','n'),
+Qn('O12','Total number of Black employees','n'),
+Qn('O13','Number of semi-skilled carpenters','m',N05),
+Qn('O14','Number of qualified electricians','m',N05),
+Qn('O15','Number of qualified plumbers','m',N05)]}]},
+{t:'Tax, B-BBEE and support',intro:'Tax and B-BBEE status, learner hosting, and any support or finance you have received before.',g:[
+{h:'Tax',gate:'T0',q:[
+Qn('T1','Business tax registration status','m',['Registered','Unregistered']),
+Qn('T2','Business income tax reference number','t',null,['T1',['Registered']]),
+Qn('T3','Tax compliance PIN expiry date','d',null,['T1',['Registered']])]},
+{h:'B-BBEE',gate:'E0',q:[
+Qn('E1','B-BBEE classification','m',['Exempted Micro-Enterprise (EME: up to R10M)','Qualifying Small Enterprise (QSE: R10M-R50M)','Generic Enterprise (GE: over R50M)']),
+Qn('E2','B-BBEE level of contribution','m',['Level 1','Level 2','Level 3','Level 4 & above']),
+Qn('E4','B-BBEE certificate / affidavit expiry date','d')]},
+{h:'Learners and apprentices',q:[
+Qn('H1','Does the business have a history of hosting learners/apprentices?','m',YN),
+Qn('H2','Name of the last organisation that provided the learners/apprentices','t',null,['H1',['Yes']]),
+Qn('H3','Total number of learners/apprentices hosted','n',null,['H1',['Yes']]),
+Qn('H4','Hosting period','p',null,['H1',['Yes']]),
+Qn('H5','Does the business have an interest and capacity to host learners/apprentices?','m',YN),
+Qn('H6','Total number of learners/apprentices the business wants to host','n',null,['H5',['Yes']]),
+Qn('H7','Hosting period','p',null,['H5',['Yes']])]},
+{h:'Enterprise development and finance',q:[
+Qn('H8','Does the business have a history of enterprise development?','m',YN),
+Qn('H9','Name of the last organisation that provided enterprise development','t',null,['H8',['Yes']]),
+Qn('H10','Enterprise development period','p',null,['H8',['Yes']]),
+Qn('H11','Type of enterprise development support received (select all that apply)','x',['Mentorship & Coaching','Regulatory Compliance','Entrepreneurial Development','Business Skills Training','Technical Skills Training','Market Access'],['H8',['Yes']]),
+Qn('H12','Type of access to finance received (select all that apply)','x',['Bank Loan','Government Grant','Venture Capital','Development Finance','Other']),
+Qn('H13','Name of the organisation that provided the finance'),
+Qn('H14','Value of finance received (R)','n')]}]}];
+const QM={};SEC.forEach(s=>s.g.forEach(g=>g.q.forEach(x=>{x.g=g;QM[x.id]=x})));
+const opts=x=>{if(typeof x.o!=='string')return x.o||[];const[m,p]=x.o.split(':');return(m==='DIST'?DIST:TVET)[ST.f[p]]||[]};
+const vis=x=>{const f=ST.f,g=x.g;if(g.gate&&x.id!==g.gate&&f[g.gate]==='No')return false;if(x.r){const inc=x.r[1].includes(f[x.r[0]]);if(x.r[2]?inc:!inc)return false}if(typeof x.o==='string'&&!f[x.o.split(':')[1]])return false;return true};
+const validDate=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||'');if(!m)return false;const y=+m[1],mo=+m[2],d=+m[3];if(y<1900||y>2099)return false;const t=new Date(Date.UTC(y,mo-1,d));return t.getUTCFullYear()===y&&t.getUTCMonth()===mo-1&&t.getUTCDate()===d};
+const validYear=v=>/^\d{4}$/.test(v||'')&&+v>=1900&&+v<=new Date().getFullYear()+1;
+const validEmail=v=>/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test((v||'').trim());
+const validId=v=>{v=String(v||'');if(!/^\d{13}$/.test(v))return false;const yy=+v.slice(0,2),mm=+v.slice(2,4),dd=+v.slice(4,6);
+const ok=y=>{const t=new Date(Date.UTC(y,mm-1,dd));return t.getUTCFullYear()===y&&t.getUTCMonth()===mm-1&&t.getUTCDate()===dd};
+if(!ok(1900+yy)&&!ok(2000+yy))return false;if(v[10]!=='0'&&v[10]!=='1')return false;
+let sum=0;for(let i=0;i<13;i++){let n=+v[12-i];if(i%2===1){n*=2;if(n>9)n-=9}sum+=n}return sum%10===0};
+function vmsg(x,v){if(x.t==='p'){const o=v||{};return[o.a,o.b].some(z=>z&&!validDate(z))?'Enter valid dates with a 4-digit year.':''}
+if(!v)return'';
+if(x.t==='id')return validId(v)?'':(/^\d{13}$/.test(v)?'This is not a valid South African ID number. Please check it.':'A South African ID number has 13 digits ('+String(v).length+' entered).');
+if(x.t==='e')return validEmail(v)?'':'Enter a valid email address, for example name@example.com.';
+if(x.t==='d')return validDate(v)?'':'Enter a valid date with a 4-digit year.';
+if(x.t==='y')return validYear(v)?'':'Enter a 4-digit year, for example 2019.';return''}
+const VT=['id','e','d','y'];
+const ans=x=>{const v=ST.f[x.id];if(x.t==='x'||x.t==='l')return!!(v&&v.length);if(x.t==='p')return!!(v&&validDate(v.a)&&validDate(v.b));if(x.t==='id')return validId(v);if(x.t==='e')return validEmail(v);if(x.t==='d')return validDate(v);if(x.t==='y')return validYear(v);if(x.t==='g')return/^\s*-?\d+(\.\d+)?\s*[,;]\s*-?\d+(\.\d+)?\s*$/.test(v||'');return v!==undefined&&String(v).trim()!==''};
+const sc=s=>{let a=0,n=0;s.g.forEach(g=>g.q.forEach(x=>{if(vis(x)){n++;if(ans(x))a++}}));return[a,n]};
+function fld0(x){const v=ST.f[x.id],id=x.id,L=e(x.l);
+if(x.t==='m'){const o=opts(x);return o.length>6?`<label>${L}<select onchange="ps('${id}',this.value)"><option value="">Select…</option>${o.map(t=>`<option value="${e(t)}" ${v===t?'selected':''}>${e(t)}</option>`).join('')}</select></label>`:`<div>${L}<div class="q">${o.map((t,i)=>`<button class="${v===t?'on':''}" onclick="pf('${id}',${i})">${e(t)}</button>`).join('')}</div></div>`}
+if(x.t==='x'){const a=v||[];return`<div>${L}<div class="q">${opts(x).map((t,i)=>`<button class="${a.includes(t)?'on':''}" onclick="px('${id}',${i})">${e(t)}</button>`).join('')}</div></div>`}
+if(x.t==='p'){const o=v||{a:'',b:''};return`<div>${L}<div class="q" style="gap:12px"><label>From<input type="date" min="1900-01-01" max="2099-12-31" value="${e(o.a)}" oninput="pp('${id}','a',this.value)"></label><label>To<input type="date" min="1900-01-01" max="2099-12-31" value="${e(o.b)}" oninput="pp('${id}','b',this.value)"></label></div><span class="err" id="er-${id}">${vmsg(x,v)}</span></div>`}
+if(x.t==='g')return`<div><label>${L}<input value="${e(v)}" placeholder="latitude, longitude (e.g. -27.758000, 29.931800)" oninput="pt('${id}',this.value)"></label><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><button class="btn s" type="button" onclick="gps('${id}')">Locate me</button><span class="hint">${e(GS[id]||'')}</span></div></div>`;
+if(x.t==='l'){const a=v||[],o=x.o.filter(t=>!a.includes(t));return`<div>${L}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><select id="ls-${id}" style="flex:1;min-width:200px"><option value="">Select…</option>${o.map(t=>`<option value="${e(t)}">${e(t)}</option>`).join('')}</select><button class="btn s" type="button" onclick="la('${id}')">Add</button></div><div class="q">${a.map((t,i)=>`<button class="on" onclick="lr('${id}',${i})">${e(t)} ✕</button>`).join('')}</div></div>`}
+if(x.t==='a')return aHTML(x,v,L);
+const ty={d:'date',n:'number',e:'email'}[x.t]||'text';
+if(VT.includes(x.t)){const at={d:'min="1900-01-01" max="2099-12-31"',id:'inputmode="numeric" maxlength="13" autocomplete="off"',y:'inputmode="numeric" maxlength="4" autocomplete="off"',e:'autocomplete="email"'}[x.t];return`<label>${L}<input type="${ty}" ${at} value="${e(v)}" oninput="pv('${id}',this)"><span class="err" id="er-${id}">${vmsg(x,v)}</span></label>`}
+return`<label>${L}<input type="${ty}" ${x.t==='n'?'min="0" inputmode="decimal"':''} value="${e(v)}" oninput="pt('${id}',this.value)"></label>`}
+const fld=x=>`<div id="m-${x.id}" class="${TRY&&!ans(x)?'miss':''}">${fld0(x)}</div>`;
+function secHTML(s){const[a,n]=sc(s);return`<div class="card"><h2>${s.t}</h2><p class="hint">${s.intro} ${a}/${n} answered.</p>${s.g.map(g=>`<h3>${g.h}</h3>${g.q.filter(vis).map(fld).join('')}`).join('')}</div>`}
+function ps(k,v){ST.f[k]=v;Object.values(QM).forEach(x=>{if(typeof x.o==='string'&&x.o.split(':')[1]===k)delete ST.f[x.id]});sv();render()}
+function pf(k,i){ST.f[k]=opts(QM[k])[i];sv();render()}
+function px(k,i){const o=opts(QM[k])[i],a=ST.f[k]||[];ST.f[k]=a.includes(o)?a.filter(z=>z!==o):a.concat(o);sv();render()}
+function pt(k,v){ST.f[k]=v;sv()}
+function pp(k,w,v){const o=ST.f[k]||{a:'',b:''};o[w]=v;ST.f[k]=o;sv();vupd(k)}
+function pv(k,el){const x=QM[k];let v=el.value;if(x.t==='id'){v=v.replace(/\D/g,'').slice(0,13);el.value=v}if(x.t==='e')v=v.trim();ST.f[k]=v;sv();vupd(k)}
+function vupd(k){const n=document.getElementById('er-'+k);if(n)n.textContent=vmsg(QM[k],ST.f[k])}
+const AD=['L1','B13'],ACL={};let ACT=null,ACS='';
+function aHTML(x,v,L){const id=x.id,ad=AD.includes(id)&&PLACES_KEY;return`<label${ad?' class="ac"':''}>${L}<textarea autocomplete="off" style="font-family:inherit;font-size:16px;min-height:80px" oninput="${ad?`pa('${id}',this)`:`pt('${id}',this.value)`}">${e(v)}</textarea>${ad?`<div class="acl" id="acl-${id}"></div><span class="hint">Start typing and choose your address from the list.</span>`:''}</label>`}
+function pa(id,el){ST.f[id]=el.value;sv();clearTimeout(ACT);const q=el.value.trim(),box=document.getElementById('acl-'+id);if(!box)return;if(q.length<3){box.innerHTML='';return}ACT=setTimeout(()=>acs(id,q,box),300)}
+async function acs(id,q,box){try{if(!ACS)ACS=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36);
+const r=await fetch('https://places.googleapis.com/v1/places:autocomplete',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':PLACES_KEY},body:JSON.stringify({input:q,includedRegionCodes:['za'],languageCode:'en',sessionToken:ACS})});
+if(!r.ok)throw 0;const j=await r.json();const t=(j.suggestions||[]).map(z=>z.placePrediction&&z.placePrediction.text&&z.placePrediction.text.text).filter(Boolean).slice(0,5);ACL[id]=t;
+box.innerHTML=t.map((a,i)=>`<button type="button" onclick="apick('${id}',${i})">${e(a)}</button>`).join('')}catch(_){box.innerHTML=''}}
+function apick(id,i){const t=(ACL[id]||[])[i];if(!t)return;ST.f[id]=t;ACS='';sv();render()}
+document.addEventListener('click',ev=>{if(!ev.target.closest||!ev.target.closest('.ac'))document.querySelectorAll('.acl').forEach(n=>{n.innerHTML=''})});
+const GS={};let TRY=false;
+function la(k){const sl=document.getElementById('ls-'+k);if(!sl||!sl.value)return;const a=ST.f[k]||[];if(!a.includes(sl.value))a.push(sl.value);ST.f[k]=a;sv();render()}
+function lr(k,i){const a=ST.f[k]||[];a.splice(i,1);ST.f[k]=a;sv();render()}
+function gps(k){
+if(typeof isSecureContext!=='undefined'&&!isSecureContext){GS[k]='Location only works when this page is opened over https. Please type the coordinates.';render();return}
+if(!navigator.geolocation){GS[k]='Location is not available in this browser. Please type the coordinates.';render();return}
+GS[k]='Finding your location. Please allow location access if asked…';render();
+navigator.geolocation.getCurrentPosition(p=>{ST.f[k]=p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);GS[k]='Location captured (accurate to about '+Math.round(p.coords.accuracy)+' m).';sv();render()},
+er=>{GS[k]={1:'Location access is blocked. Allow location for this page in your browser settings, then tap Locate me again, or type the coordinates.',2:'Your device could not work out its location. Try again, or type the coordinates.',3:'Finding your location took too long. Try again, or type the coordinates.'}[er.code]||'Could not get your location. Please type the coordinates.';render()},
+{enableHighAccuracy:true,timeout:20000,maximumAge:0})}
+function need(s){const m=[];
+if(s===0)EL.forEach((_,i)=>{if(ST.e[i]===undefined)m.push('e'+i)});
+else if(s>=1&&s<=4)SEC[s-1].g.forEach(g=>g.q.forEach(x=>{if(vis(x)&&!ans(x))m.push(x.id)}));
+else if(s===5)GT.forEach((_,i)=>{if(!ST.t[i+1])m.push('t'+(i+1))});
+else if(s===6)GR.forEach((_,i)=>{if(!ST.r[i+1])m.push('r'+(i+1))});
+else if(s===7)IRL.forEach(a=>{if(!ST.i[a.k])m.push('i'+a.k)});
+else if(s===8)BDQ.forEach((_,i)=>{if(ST.b[i+1]===undefined)m.push('b'+(i+1))});
+return m}
+const e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let ST={e:{},f:{},t:{},r:{},i:{},b:{},ok:false,step:0,code:''};
+try{const s=JSON.parse(localStorage.getItem('irm-form-v3')||'null');if(s)ST=Object.assign(ST,s)}catch(_){}
+function sv(){try{localStorage.setItem('irm-form-v3',JSON.stringify(ST))}catch(_){}}
+const F=(l,k,t='text')=>`<label id="m-f-${k}" class="${TRY&&need(1).includes('f-'+k)?'miss':''}">${l}<input type="${t}" value="${e(ST[k])}" oninput="ST.${k}=this.value;sv()"></label>`;
+const Sl=(l,k,o)=>`<label>${l}<select onchange="ST.${k}=this.value;sv()">${o.map(x=>{const[v,t]=Array.isArray(x)?x:[x,x];return `<option value="${v}" ${ST[k]===v?'selected':''}>${t}</option>`}).join('')}</select></label>`;
+function cnt(){return{e:Object.keys(ST.e).length,t:Object.keys(ST.t).length,r:Object.keys(ST.r).length,i:Object.keys(ST.i).length,b:Object.keys(ST.b).length}}
+function go(n){TRY=false;SO=false;ST.step=n;sv();render();scrollTo(0,0)}
+function nx(){const m=need(ST.step);if(m.length){TRY=true;render();setTimeout(()=>{const el=document.querySelector('.miss');if(el&&el.scrollIntoView)el.scrollIntoView({block:'center'})},0);return}go(ST.step+1)}
+function pick(m,k,v){ST[m][k]=v;sv();render()}
+function undoNo(){Object.keys(ST.e).forEach(k=>{if(ST.e[k]==='0')delete ST.e[k]});sv();render()}
+function render(){const c=cnt(),s=ST.step;$('#pb').style.width=(s/LAST*100)+'%';
+if(Object.values(ST.e).includes('0')){$('#pb').style.width='0';$('#app').innerHTML=`<div class="card"><h2>This programme is not the right fit right now</h2><p>Thank you for your interest. This programme is open to enterprises that meet all seven minimum requirements in the quick check, and your answers show that one or more are not yet met. Your answers have not been sent to NBI.</p><p>Please create or complete your user profile on the IRM Hub MSME portal instead.</p><p><a class="btn" style="display:inline-block;text-decoration:none" href="https://portal.irmhub.org.za" target="_blank" rel="noopener">Go to the IRM Hub portal</a></p><p class="hint"><a href="#" onclick="undoNo();return false">I tapped No by mistake: go back and change my answers</a></p></div>`;return}
+let b='';
+if(s===0)b=`<div class="card"><h2> Submit your Application</h2><p>The National Business Initiative and Majuba TVET College, invites the following MSMEs:</p>
+
+<p>MSMEs that are already active in insurance brokers, insurers, or claims-supply panels but need capability
+       and capacity to increase their work volumes.</p>
+<p>MSMEs that possess practical trade experience but remain excluded from these panels and require broker
+      and market linkages
+MSMEs that have adopted self-created growth strategies to create employment outside insurance panel based markets.</p><p> Based in Newcastle, Madadeni, Osizweni and the wider Majuba TVET College area.</p>Support includes training, coaching, technical assistance, networking, market linkages for growth orientated MSMEs.</p><p>This form takes about 50 minutes. Every question must be answered. It has your business details, your personal and business profile, two questionnaires about how you work, and a six-part readiness diagnostic and a business diagnostic. There are no right or wrong answers; please answer honestly. Your progress is saved on this device.</p><p class="hint">Completing this form does not guarantee selection. Shortlisted enterprises will be contacted for a site visit.</p><h3>Quick check</h3><p class="hint">Please answer for your business.</p>${EL.map(([k,t],i)=>`<div id="m-e${i}" class="${TRY&&ST.e[i]===undefined?'miss':''}">${t}<div class="q">${[['Yes','1'],['No','0']].map(([l,v])=>`<button class="${ST.e[i]===v?'on':''}" onclick="pick('e',${i},'${v}')">${l}</button>`).join('')}</div></div>`).join('')}</div>`;
+if(s>=1&&s<=4)b=secHTML(SEC[s-1]);
+if(s===5)b=`<div class="card"><h2>Enterprising tendency</h2><p class="hint">Do you agree or disagree with each statement? ${c.t}/54 answered.</p>${GT.map((t,i)=>`<div id="m-t${i+1}" class="${TRY&&!ST.t[i+1]?'miss':''}"><span class="hint">${i+1}.</span> ${t}<div class="q">${[['Agree','A'],['Disagree','D']].map(([l,v])=>`<button class="${ST.t[i+1]===v?'on':''}" onclick="pick('t',${i+1},'${v}')">${l}</button>`).join('')}</div></div>`).join('')}</div>`;
+if(s===6)b=`<div class="card"><h2>Grit</h2><p class="hint">How much does each statement describe you? ${c.r}/12 answered.</p>${GR.map(([t],i)=>`<div id="m-r${i+1}" class="${TRY&&!ST.r[i+1]?'miss':''}"><span class="hint">${i+1}.</span> ${t}<div class="q">${GL.map((l,v)=>`<button class="${ST.r[i+1]===v+1?'on':''}" onclick="pick('r',${i+1},${v+1})">${l}</button>`).join('')}</div></div>`).join('')}</div>`;
+if(s===7){const sum=irlDone()?(()=>{return`<div class="card"><h3>Your readiness profile</h3><p class="hint">Where your business is today in each of the six areas.</p>${IRL.map(a=>{const v=ST.i[a.k];return`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px"><span>${a.n}</span><span class="hint">L${v}: ${e(a.s[v-1])}</span></div><div class="bar"><i style="width:${v/9*100}%"></i></div></div>`}).join('')}<p class="hint">This is based on your own answers. It is a snapshot, not a score.</p></div>`})():'';
+b=`<div class="card"><h2>IRL Diagnostic</h2><p class="hint">KTH Innovation Readiness Level™. For each of the six areas below, choose the one statement that best describes your business right now. Choose the highest level you can honestly say yes to. There are no wrong answers. ${c.i}/6 answered.</p><p class="hint">Adapted from the KTH Innovation Readiness Level™ (© KTH Innovation, CC BY-NC-SA, kthinnovationreadinesslevel.com).</p></div>`+IRL.map((a,n)=>`<div class="card"><div id="m-i${a.k}" class="${TRY&&!ST.i[a.k]?'miss':''}"><h3>${n+1}. ${a.n} (${a.c})</h3><p class="hint">${e(a.a)}</p><div class="irl">${a.q.map((t,j)=>`<button type="button" class="opt ${ST.i[a.k]===j+1?'on':''}" onclick="pick('i','${a.k}',${j+1})"><b>L${j+1}</b><span>${e(t)}</span></button>`).join('')}</div></div></div>`).join('')+sum}
+if(s===8){let n=0;b=`<div class="card"><h2>Business diagnostic</h2><p class="hint">How true is each statement for your business today? ${c.b}/24 answered.</p>${BD.map(g=>`<h3>${e(g[0])}</h3>${g[1].map(t=>{n++;const k=n;return`<div id="m-b${k}" class="${TRY&&ST.b[k]===undefined?'miss':''}">${e(t)}<div class="q">${BDO.map((l,v)=>`<button class="${ST.b[k]===v?'on':''}" onclick="pick('b',${k},${v})">${e(l)}</button>`).join('')}</div></div>`}).join('')}`).join('')}</div>`}
+if(s===LAST){const all=STEPS.slice(0,LAST).map((t,k)=>[k,t,need(k).length]),left=all.filter(x=>x[2]);
+b=`<div class="card"><h2>Review and submit</h2>${ST.sent?`<h3>Thank you</h3>${ST.sent==='file'?`<p>Your application is ready. It is not submitted until NBI receives the code below. Tap the email button, or copy the code and send it as one message to ${NBI_EMAILS.join(' and ')}, or to the NBI contact who gave you this link by WhatsApp.</p><textarea readonly id="cd" onclick="this.select()">${e(ST.code)}</textarea><p><a class="btn" style="display:inline-block;text-decoration:none" href="mailto:${NBI_EMAILS.join(',')}?subject=${encodeURIComponent('IRM application: '+(ST.f.B1||''))}&body=${encodeURIComponent('My application code:\n\n'+ST.code)}">Email my application to NBI</a> <button class="btn s" onclick="cpy()">Copy code</button> <span id="cpm" class="hint"></span></p>`:'<p>Your application has been submitted to NBI. Shortlisted enterprises will be contacted for a site visit.</p>'}`:`${all.map(x=>`<p>${x[1]}: <b class="${x[2]?'bad':'ok'}">${x[2]?x[2]+' unanswered':'complete'}</b> ${x[2]?`<a href="#" onclick="go(${x[0]});return false">complete</a>`:''}</p>`).join('')}${left.length?'<p class="hint">Please answer every question to continue.</p>':`<label style="flex-direction:row;gap:8px;align-items:flex-start;color:var(--ink)"><input type="checkbox" ${ST.ok?'checked':''} onchange="ST.ok=this.checked;sv();render()"> I confirm my answers are true and I consent to NBI and Majuba TVET College processing my information for this programme, in line with POPIA.</label><button class="btn" ${ST.ok&&!BUSY?'':'disabled'} onclick="submitApp()">${BUSY?'Submitting…':'Submit application'}</button>`}${ERR?`<p class="bad">${e(ERR)}</p>`:''}`}<p class="hint"><a href="#" onclick="cfa();return false">${SO?'Click again to clear all answers on this device':'Start over'}</a></p></div>`}
+$('#app').innerHTML=(TRY&&s<LAST&&need(s).length?`<p class="bad"><b>Please answer every question (${need(s).length} left).</b> Unanswered questions are marked in red.</p>`:'')+b+`<div class="nav"><button class="btn s" ${s?'':'style="visibility:hidden"'} onclick="go(${s-1})">Back</button>${s<LAST?`<button class="btn" onclick="nx()">${s?'Next':'Start'}</button>`:''}</div><p class="hint" style="text-align:center">${STEPS[s]} · step ${s+1} of ${STEPS.length}</p>`}
+const $=q=>document.querySelector(q);
+function payload(){const f={};SEC.forEach(s=>s.g.forEach(g=>g.q.forEach(x=>{if(vis(x)&&ans(x))f[x.id]=ST.f[x.id]})));
+if(f['B10.5']==='Yes'){const mp={B11:'L3',B12:'L1.1',B13:'L1',B14:'L4',B15:'L6',B16:'L7',B17:'L8'};Object.keys(mp).forEach(k=>{if(f[mp[k]]!==undefined)f[k]=f[mp[k]]});if(f.L2)f.B18=f.L2.replace('settlement','Settlement')}
+const own=((f.P2||'')+' '+(f.P3||'')).trim(),pr=f.P8,ag=f.P6,dob=Date.parse(f.P5),
+yo=dob?(Date.now()-dob)/315576e5<=35:['Under 18','18-23','24-29','30-35'].includes(ag),
+adr=((f.B13||'')+' '+(f.L1||'')).toLowerCase(),ar=['Madadeni','Osizweni','Newcastle'].find(t=>adr.includes(t.toLowerCase()))||'Other Majuba',
+sv_=f.B10||'',tr=['Plumbing','Electrical','Carpentry'].find(t=>sv_.includes(t))||'Other';
+return{v:2,i:Date.now().toString(36)+Math.random().toString(36).slice(2,6),at:new Date().toISOString(),n:f.B1||own,o:own,em:f.P14||f.B8||'',ph:f.P13||f.P16||f.B7||'',g:pr==='She/Her'?'F':pr==='He/Him'?'M':'O',y:yo?1:0,a:ar,tr,e:EL.map((_,i)=>ST.e[i]||'-').join(''),t:GT.map((_,i)=>ST.t[i+1]||'-').join(''),r:GR.map((_,i)=>ST.r[i+1]||'-').join(''),irl:irlPayload(),bd:BDQ.map((_,i)=>ST.b[i+1]===undefined?'-':ST.b[i+1]).join(''),f}}
+async function mkCode(o){const F=o.f||{},I=o.irl||{},t=x=>encodeURIComponent(x==null?'':x);
+return'IRM3.'+[o.i,(o.at||'').slice(0,10),o.n,o.o,o.em,o.ph,o.g,o.y,o.a,o.tr,o.e,o.t,o.r,[I.crl,I.trl,I.brl,I.iprl,I.tmrl,I.frl].join(''),o.bd,F.B5,F.O9,F.O11,F.B20,F.O5,F.B21].map(t).join('|')}
+async function cpy(){const t=document.getElementById('cd');t.select();let ok=false;try{await navigator.clipboard.writeText(t.value);ok=true}catch(_){try{ok=document.execCommand('copy')}catch(_){}}const m=document.getElementById('cpm');if(m)m.textContent=ok?'Copied.':'Select the code and copy it manually.'}
+let SO=false;function cfa(){if(SO){try{localStorage.removeItem('irm-form-v3')}catch(_){}location.reload()}else{SO=true;render()}}
+async function submitApp(){const o=payload();ERR='';
+if(!SUBMIT_URL){try{ST.code=await mkCode(o);ST.sent='file'}catch(_){ERR='Could not prepare your application on this device.'}
+try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));a.download='IRM-application-'+o.i+'.json';document.body.appendChild(a);a.click();a.remove()}catch(_){}
+sv();render();return}
+BUSY=true;render();
+try{await fetch(SUBMIT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({},o,{code:await mkCode(o)}))});ST.sent=true}catch(_){ERR='Could not send your application. Check your internet connection and try again.'}
+BUSY=false;sv();render()}
+render();
+</script></body></html>

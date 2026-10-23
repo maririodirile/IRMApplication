@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Applicant data: never commit (personal information, POPIA)
+IRM-application-*.json
+exports/
+*.export.json
+hub-export*.json
+
+# Secrets and local config
+.env
+.env.*
+*.local
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
